@@ -24,37 +24,20 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+import { createClient } from '@supabase/supabase-js';
 
-// Firebase Modular Web Imports
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import {
-  getAuth,
-  signInWithEmailAndPassword as signInWeb,
-  createUserWithEmailAndPassword as createUserWeb,
-  signOut as signOutWeb,
-  onAuthStateChanged as onAuthStateChangedWeb,
-} from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getDatabase, ref, set, get, child } from 'firebase/database';
+// Supabase Configuration & Initialization
+const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT_URL.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
-// Firebase Native Import (Mobile fallback)
-import authNative from '@react-native-firebase/auth';
-
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-};
-
-// Cross-Platform Firebase Initialization
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-const db = getDatabase(app);
-const webAuth = getAuth(app);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    storage: AsyncStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -682,41 +665,35 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // 2. Firebase Auth listener with platform fallback
+  // 2. Supabase Auth listener
   useEffect(() => {
-    const handleAuthStateChanged = async (user) => {
-      if (user) {
-        try {
-          const userRef = ref(db, `users/${user.uid}`);
-          const snapshot = await get(userRef);
-
-          if (snapshot.exists()) {
-            const userData = snapshot.val();
-            setCurrentUser({
-              userId: user.uid,
-              email: user.email,
-              username: userData.username || user.email.split('@')[0],
-            });
-          } else {
-            setCurrentUser({
-              userId: user.uid,
-              email: user.email,
-              username: user.email.split('@')[0],
-            });
-          }
-        } catch (error) {
-          console.error('Failed to fetch user data from Firebase:', error);
-        }
+    // Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setCurrentUser({
+          userId: session.user.id,
+          email: session.user.email,
+          username: session.user.user_metadata?.username || session.user.email.split('@')[0],
+        });
       } else {
         setCurrentUser(null);
       }
-    };
+    });
 
-    if (Platform.OS === 'web') {
-      return onAuthStateChangedWeb(webAuth, handleAuthStateChanged);
-    } else {
-      return authNative().onAuthStateChanged(handleAuthStateChanged);
-    }
+    // Auth State Change Subscription
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setCurrentUser({
+          userId: session.user.id,
+          email: session.user.email,
+          username: session.user.user_metadata?.username || session.user.email.split('@')[0],
+        });
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // 3. App data loading
@@ -762,28 +739,46 @@ export default function App() {
   };
 
   const buildLeaderboardList = async () => {
-    let activeSyncedUser = null;
+    let remoteEntries = [];
     try {
-      const syncData = await AsyncStorage.getItem(LEADERBOARD_SYNC_KEY);
-      if (syncData) {
-        activeSyncedUser = JSON.parse(syncData);
+      const { data, error } = await supabase
+        .from('leaderboard')
+        .select('user_id, username, flag, score')
+        .order('score', { ascending: false })
+        .limit(1000);
+
+      if (!error && data) {
+        remoteEntries = data.map((item) => ({
+          username: item.username,
+          flag: item.flag,
+          score: item.score,
+        }));
       }
     } catch (e) {
-      console.error('Error fetching leaderboard sync data', e);
+      console.error('Error fetching Supabase leaderboard data:', e);
     }
 
-    const currentScore = calculateTotalScore();
-    const activeName = currentUser ? currentUser.username : (activeSyncedUser?.username || null);
+    // Fallback to local user score if offline or empty
+    if (remoteEntries.length === 0) {
+      let activeSyncedUser = null;
+      try {
+        const syncData = await AsyncStorage.getItem(LEADERBOARD_SYNC_KEY);
+        if (syncData) activeSyncedUser = JSON.parse(syncData);
+      } catch (e) {
+        console.error('Error fetching leaderboard sync data', e);
+      }
 
-    const initialActiveUser = activeName
-      ? { username: activeName, flag: profileFlags, score: currentScore }
-      : null;
+      const currentScore = calculateTotalScore();
+      const activeName = currentUser ? currentUser.username : (activeSyncedUser?.username || null);
 
-    let entries = initialActiveUser ? [initialActiveUser] : [];
+      if (activeName) {
+        remoteEntries = [{ username: activeName, flag: profileFlags, score: currentScore }];
+      }
+    }
 
     const slots = Array.from({ length: 1000 }, (_, index) => {
       const position = index + 1;
-      const entry = entries[index];
+      const entry = remoteEntries[index];
 
       return {
         id: `slot-${position}`,
@@ -872,12 +867,15 @@ export default function App() {
 
     const totalScore = calculateTotalScore();
     try {
-      await set(ref(db, `leaderboard/${currentUser.userId}`), {
+      const { error } = await supabase.from('leaderboard').upsert({
+        user_id: currentUser.userId,
         username: currentUser.username,
         score: totalScore,
         flag: profileFlags,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       });
+
+      if (error) throw error;
 
       Alert.alert('Leaderboard Updated!', `Successfully updated score to ${totalScore} PTS for @${currentUser.username}.`);
     } catch (e) {
@@ -900,8 +898,6 @@ export default function App() {
     }
 
     try {
-      let userRes;
-
       if (authMode === 'register') {
         const usernameValidation = validateUsername(authUsername);
         if (!usernameValidation.isValid) {
@@ -909,43 +905,39 @@ export default function App() {
           return;
         }
 
-        if (Platform.OS === 'web') {
-          userRes = await createUserWeb(webAuth, authEmail.trim(), authPassword);
-        } else {
-          userRes = await authNative().createUserWithEmailAndPassword(authEmail.trim(), authPassword);
-        }
-
-        const userObj = userRes.user;
-
-        await set(ref(db, `users/${userObj.uid}`), {
-          username: authUsername.trim(),
+        const { data, error } = await supabase.auth.signUp({
           email: authEmail.trim(),
-          createdAt: new Date().toISOString(),
+          password: authPassword,
+          options: {
+            data: { username: authUsername.trim() },
+          },
         });
 
-        setCurrentUser({
-          userId: userObj.uid,
-          email: userObj.email,
-          username: authUsername.trim(),
-        });
-      } else {
-        if (Platform.OS === 'web') {
-          userRes = await signInWeb(webAuth, authEmail.trim(), authPassword);
-        } else {
-          userRes = await authNative().signInWithEmailAndPassword(authEmail.trim(), authPassword);
+        if (error) throw error;
+
+        if (data?.user) {
+          setCurrentUser({
+            userId: data.user.id,
+            email: data.user.email,
+            username: authUsername.trim(),
+          });
         }
-
-        const userObj = userRes.user;
-        const userSnapshot = await get(ref(db, `users/${userObj.uid}`));
-        const fetchedUsername = userSnapshot.exists() && userSnapshot.val().username 
-          ? userSnapshot.val().username 
-          : userObj.email.split('@')[0];
-
-        setCurrentUser({
-          userId: userObj.uid,
-          email: userObj.email,
-          username: fetchedUsername,
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword,
         });
+
+        if (error) throw error;
+
+        if (data?.user) {
+          const fetchedUsername = data.user.user_metadata?.username || data.user.email.split('@')[0];
+          setCurrentUser({
+            userId: data.user.id,
+            email: data.user.email,
+            username: fetchedUsername,
+          });
+        }
       }
 
       setIsAuthModalOpen(false);
@@ -958,11 +950,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      if (Platform.OS === 'web') {
-        await signOutWeb(webAuth);
-      } else {
-        await authNative().signOut();
-      }
+      await supabase.auth.signOut();
       await AsyncStorage.removeItem(USER_SESSION_KEY);
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -2362,32 +2350,19 @@ const styles = StyleSheet.create({
     height: '75%',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 4,
-    overflow: 'hidden',
   },
   figureImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
-  },
-  webGridContainer: {
-    width: '100%',
-    maxWidth: 1450,
-    alignSelf: 'center',
-  },
-  webGridRow: {
-    justifyContent: 'flex-start',
-    gap: 12,
-    marginBottom: 12,
   },
   grayscale: {
-    opacity: 0.3,
+    opacity: 0.35,
   },
   badge: {
     width: '100%',
-    paddingVertical: 2,
-    borderRadius: 4,
     backgroundColor: '#334155',
+    borderRadius: 4,
+    paddingVertical: 2,
     alignItems: 'center',
   },
   badgeBoxed: {
@@ -2401,17 +2376,25 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 9,
+    fontSize: 8,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  webGridContainer: {
+    alignItems: 'center',
+  },
+  webGridRow: {
+    justifyContent: 'flex-start',
+    gap: 8,
+    marginVertical: 4,
   },
   publicProfileContainer: {
     flex: 1,
     backgroundColor: '#0F172A',
   },
   publicProfileHeader: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingTop: 10,
     alignItems: 'flex-end',
   },
   publicProfileCloseButton: {
@@ -2419,42 +2402,47 @@ const styles = StyleSheet.create({
   },
   publicProfileCloseText: {
     color: '#94A3B8',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   publicProfileBody: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    alignItems: 'center',
     paddingBottom: 40,
   },
   profileModalMainTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
     color: '#F8FAFC',
+    fontSize: 22,
+    fontWeight: 'bold',
+    letterSpacing: 1,
     marginBottom: 8,
   },
   profileModalUsername: {
-    fontSize: 22,
-    fontWeight: 'bold',
     color: '#38BDF8',
+    fontSize: 28,
+    fontWeight: 'bold',
   },
   profileModalUserId: {
-    fontSize: 12,
     color: '#64748B',
+    fontSize: 12,
+    marginTop: 2,
     marginBottom: 20,
   },
   profileModalSubHeader: {
-    fontSize: 14,
     color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
     marginBottom: 6,
   },
   flagRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    gap: 8,
+    marginBottom: 16,
   },
   flagEmojiText: {
     fontSize: 24,
-    marginRight: 8,
   },
   pencilIconButton: {
     padding: 4,
@@ -2466,9 +2454,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E293B',
     borderRadius: 8,
     padding: 8,
-    marginBottom: 20,
     borderWidth: 1,
     borderColor: '#334155',
+    marginBottom: 16,
+    width: '100%',
   },
   flagOptionItem: {
     paddingVertical: 8,
@@ -2480,64 +2469,66 @@ const styles = StyleSheet.create({
   },
   profileTwoColumnRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 12,
-    marginBottom: 20,
+    width: '100%',
+    marginVertical: 16,
   },
   profileBoxCard: {
     flex: 1,
     backgroundColor: '#1E293B',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 12,
     borderWidth: 1,
     borderColor: '#334155',
     position: 'relative',
   },
   profileBoxTitle: {
-    fontSize: 12,
     color: '#94A3B8',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
     marginBottom: 8,
   },
   smoothyInputText: {
-    color: '#F8FAFC',
+    color: '#39FF14',
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'bold',
     padding: 0,
-  },
-  seriesLogoSelectArea: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 40,
-  },
-  seriesLogoPreview: {
-    width: 80,
-    height: 30,
   },
   boxPencilPosition: {
     position: 'absolute',
     top: 8,
     right: 8,
   },
+  seriesLogoSelectArea: {
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  seriesLogoPreview: {
+    width: '100%',
+    height: '100%',
+  },
   seriesPickerContainer: {
     backgroundColor: '#1E293B',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 8,
-    marginBottom: 20,
     borderWidth: 1,
     borderColor: '#334155',
+    width: '100%',
+    marginBottom: 16,
   },
   seriesPickerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    padding: 8,
     borderRadius: 6,
   },
   seriesPickerItemActive: {
     backgroundColor: '#334155',
   },
   seriesPickerLogo: {
-    width: 40,
+    width: 30,
     height: 20,
     marginRight: 12,
   },
@@ -2546,12 +2537,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   collectorScoreCenterBox: {
+    width: '100%',
     backgroundColor: '#1E293B',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
+    marginTop: 8,
   },
   collectorScoreBoxTitle: {
     color: '#94A3B8',
@@ -2563,14 +2556,14 @@ const styles = StyleSheet.create({
   scoreValueHighlightBox: {
     backgroundColor: '#0F172A',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#39FF14',
   },
   scoreValueHighlightText: {
     color: '#39FF14',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   statsModalContainer: {
@@ -2587,23 +2580,23 @@ const styles = StyleSheet.create({
     borderBottomColor: '#334155',
   },
   statsFilterIconButton: {
-    padding: 8,
+    padding: 6,
   },
   statsFilterIconText: {
-    color: '#94A3B8',
+    color: '#38BDF8',
     fontSize: 16,
   },
   statsHeaderTitle: {
+    color: '#F8FAFC',
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#F8FAFC',
   },
   statsCloseButton: {
-    padding: 8,
+    padding: 6,
   },
   statsCloseButtonText: {
     color: '#94A3B8',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   statsScroll: {
@@ -2611,56 +2604,53 @@ const styles = StyleSheet.create({
   },
   statsGridContent: {
     padding: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 12,
   },
   statsCardBox: {
-    width: (SCREEN_WIDTH - 44) / 2,
     backgroundColor: '#1E293B',
-    borderRadius: 8,
-    padding: 8,
+    borderRadius: 12,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#334155',
     position: 'relative',
   },
   statsNumberBadge: {
     position: 'absolute',
-    top: 4,
-    left: 4,
+    top: 8,
+    left: 8,
     backgroundColor: '#334155',
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    zIndex: 10,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statsNumberBadgeText: {
-    color: '#94A3B8',
+    color: '#F8FAFC',
     fontSize: 10,
     fontWeight: 'bold',
   },
   statsCardInnerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
+    gap: 16,
+    paddingLeft: 20,
   },
   statsLooseImage: {
-    width: 50,
+    width: 60,
     height: 60,
   },
   statsDetailsColumn: {
-    marginLeft: 8,
-    flex: 1,
+    justifyContent: 'center',
   },
   statsPctOwnText: {
-    color: '#38BDF8',
-    fontSize: 12,
+    color: '#39FF14',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   statsPctSubText: {
     color: '#94A3B8',
-    fontSize: 10,
-    marginTop: 2,
+    fontSize: 12,
   },
   newsModalContainer: {
     flex: 1,
@@ -2678,20 +2668,21 @@ const styles = StyleSheet.create({
   newsHeaderBadge: {
     backgroundColor: '#1E293B',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 4,
     borderRadius: 6,
   },
   newsHeaderTitle: {
     color: '#F8FAFC',
     fontSize: 14,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
   newsCloseButton: {
-    padding: 8,
+    padding: 6,
   },
   newsCloseButtonText: {
     color: '#94A3B8',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   newsScroll: {
@@ -2719,13 +2710,14 @@ const styles = StyleSheet.create({
     color: '#38BDF8',
     fontSize: 10,
     fontWeight: 'bold',
+    letterSpacing: 1,
     marginBottom: 4,
   },
   newsCardTitle: {
     color: '#F8FAFC',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   newsDate: {
     color: '#64748B',
@@ -2741,8 +2733,9 @@ const styles = StyleSheet.create({
   },
   leaderboardHeaderCell: {
     color: '#94A3B8',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
   leaderboardListPadding: {
     paddingVertical: 8,
@@ -2752,45 +2745,51 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
+    borderBottomColor: 'rgba(51, 65, 85, 0.4)',
     alignItems: 'center',
   },
   leaderboardCell: {
     color: '#F8FAFC',
-    fontSize: 14,
+    fontSize: 13,
   },
-  rankCol: { width: '15%' },
-  userCol: { width: '45%' },
-  flagCol: { width: '20%', textAlign: 'center' },
-  scoreCol: { width: '20%', textAlign: 'right' },
+  rankCol: {
+    width: '18%',
+  },
+  userCol: {
+    width: '42%',
+    fontWeight: '600',
+  },
+  flagCol: {
+    width: '18%',
+    textAlign: 'center',
+  },
+  scoreCol: {
+    width: '22%',
+    textAlign: 'right',
+    color: '#39FF14',
+    fontWeight: 'bold',
+  },
   filterCard: {
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 380,
     backgroundColor: '#1E293B',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 20,
     borderWidth: 1,
     borderColor: '#334155',
   },
   filterTitle: {
+    color: '#F8FAFC',
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#F8FAFC',
     marginBottom: 16,
     textAlign: 'center',
-  },
-  filterSectionHeader: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#94A3B8',
-    marginTop: 8,
-    marginBottom: 8,
   },
   filterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   filterRowLabel: {
     color: '#F8FAFC',
@@ -2800,9 +2799,16 @@ const styles = StyleSheet.create({
     color: '#38BDF8',
     fontWeight: 'bold',
   },
+  filterSectionHeader: {
+    color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginTop: 8,
+    marginBottom: 8,
+  },
   filterOptionGroup: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     gap: 8,
   },
   filterOptionGroupVertical: {
@@ -2810,30 +2816,29 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     flex: 1,
-    paddingVertical: 10,
     backgroundColor: '#0F172A',
+    paddingVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
   },
   filterChipVertical: {
-    width: '100%',
-    paddingVertical: 10,
     backgroundColor: '#0F172A',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 8,
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
   },
   filterChipActive: {
-    backgroundColor: '#2563EB',
     borderColor: '#38BDF8',
+    backgroundColor: 'rgba(56, 189, 248, 0.1)',
   },
   filterChipText: {
     color: '#F8FAFC',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   filterFooterActionRow: {
     flexDirection: 'row',
@@ -2842,80 +2847,84 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   resetFilterBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   resetFilterText: {
     color: '#EF4444',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   closeButton: {
-    backgroundColor: '#16A34A',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    backgroundColor: '#38BDF8',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     borderRadius: 8,
   },
   closeButtonText: {
-    color: '#FFFFFF',
+    color: '#0F172A',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 13,
   },
   authTabGroup: {
     flexDirection: 'row',
     marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    backgroundColor: '#0F172A',
+    borderRadius: 8,
+    padding: 4,
   },
   authTab: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 8,
     alignItems: 'center',
+    borderRadius: 6,
   },
   authTabActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#38BDF8',
+    backgroundColor: '#38BDF8',
   },
   authTabText: {
     color: '#F8FAFC',
     fontWeight: 'bold',
+    fontSize: 13,
   },
   errorBox: {
-    backgroundColor: '#7F1D1D',
-    padding: 8,
-    borderRadius: 6,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#EF4444',
     marginBottom: 12,
   },
   errorText: {
-    color: '#FCA5A5',
+    color: '#EF4444',
     fontSize: 12,
-    textAlign: 'center',
   },
   inputLabel: {
     color: '#94A3B8',
     fontSize: 12,
+    fontWeight: 'bold',
     marginBottom: 4,
     marginTop: 8,
   },
   authInput: {
     backgroundColor: '#0F172A',
-    borderColor: '#334155',
-    borderWidth: 1,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    color: '#F8FAFC',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    color: '#F8FAFC',
     fontSize: 14,
   },
   submitAuthButton: {
-    backgroundColor: '#2563EB',
-    paddingVertical: 12,
+    backgroundColor: '#38BDF8',
     borderRadius: 8,
+    paddingVertical: 10,
     alignItems: 'center',
     marginTop: 16,
   },
   submitAuthText: {
-    color: '#FFFFFF',
+    color: '#0F172A',
     fontWeight: 'bold',
     fontSize: 14,
   },
