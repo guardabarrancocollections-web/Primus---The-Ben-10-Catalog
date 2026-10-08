@@ -17,6 +17,7 @@ import {
   ScrollView,
   StatusBar,
   FlatList,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -774,6 +775,9 @@ const LOCAL_SERIES_DATA = [
 ];
 
 const FigureCard = ({ figure, ownershipState, onToggleState, showPoints, t }) => {
+  const { width } = useWindowDimensions();
+  const isWebPC = Platform.OS === 'web' && width > 768;
+
   const imageSource =
     ownershipState === 3 || ownershipState === 4
       ? figure.looseImageUrl
@@ -798,16 +802,21 @@ const FigureCard = ({ figure, ownershipState, onToggleState, showPoints, t }) =>
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onToggleState}
-      style={styles.cardContainer}
+      style={[
+        styles.cardContainer,
+        isWebPC && styles.cardContainerWebPC,
+      ]}
     >
-      <Image
-        source={imageSource}
-        style={[
-          styles.figureImage,
-          (ownershipState === 0 || ownershipState === 1) && styles.grayscale,
-        ]}
-        resizeMode="contain"
-      />
+      <View style={isWebPC ? styles.figureImageWrapperWebPC : styles.figureImageWrapper}>
+        <Image
+          source={imageSource}
+          style={[
+            styles.figureImage,
+            (ownershipState === 0 || ownershipState === 1) && styles.grayscale,
+          ]}
+          resizeMode="contain"
+        />
+      </View>
       <View
         style={[
           styles.badge,
@@ -1102,7 +1111,7 @@ export default function App() {
     }
 
     try {
-      let userCredential;
+      let userRes;
 
       if (authMode === 'register') {
         const usernameValidation = validateUsername(authUsername);
@@ -1112,24 +1121,42 @@ export default function App() {
         }
 
         if (Platform.OS === 'web') {
-          userCredential = await createUserWeb(webAuth, authEmail.trim(), authPassword);
+          userRes = await createUserWeb(webAuth, authEmail.trim(), authPassword);
         } else {
-          userCredential = await authNative().createUserWithEmailAndPassword(authEmail.trim(), authPassword);
+          userRes = await authNative().createUserWithEmailAndPassword(authEmail.trim(), authPassword);
         }
 
-        const user = userCredential.user;
+        const userObj = userRes.user;
 
-        await set(ref(db, `users/${user.uid}`), {
+        await set(ref(db, `users/${userObj.uid}`), {
           username: authUsername.trim(),
           email: authEmail.trim(),
           createdAt: new Date().toISOString(),
         });
+
+        setCurrentUser({
+          userId: userObj.uid,
+          email: userObj.email,
+          username: authUsername.trim(),
+        });
       } else {
         if (Platform.OS === 'web') {
-          userCredential = await signInWeb(webAuth, authEmail.trim(), authPassword);
+          userRes = await signInWeb(webAuth, authEmail.trim(), authPassword);
         } else {
-          userCredential = await authNative().signInWithEmailAndPassword(authEmail.trim(), authPassword);
+          userRes = await authNative().signInWithEmailAndPassword(authEmail.trim(), authPassword);
         }
+
+        const userObj = userRes.user;
+        const userSnapshot = await get(ref(db, `users/${userObj.uid}`));
+        const fetchedUsername = userSnapshot.exists() && userSnapshot.val().username 
+          ? userSnapshot.val().username 
+          : userObj.email.split('@')[0];
+
+        setCurrentUser({
+          userId: userObj.uid,
+          email: userObj.email,
+          username: fetchedUsername,
+        });
       }
 
       setIsAuthModalOpen(false);
@@ -2544,9 +2571,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  figureImage: {
+  cardContainerWebPC: {
+    height: CARD_WIDTH * 1.6,
+  },
+  figureImageWrapper: {
     width: '100%',
     height: '75%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  figureImageWrapperWebPC: {
+    width: '100%',
+    height: '82%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 6,
+  },
+  figureImage: {
+    width: '100%',
+    height: '100%',
   },
   grayscale: {
     opacity: 0.3,
@@ -2837,7 +2880,7 @@ const styles = StyleSheet.create({
   newsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justify.content: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -3058,6 +3101,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
+  authInput: {
+    backgroundColor: '#0F172A',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#F8FAFC',
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 12,
+  },
+  submitAuthButton: {
+    backgroundColor: '#16A34A',
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  submitAuthText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   errorBox: {
     backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
@@ -3076,29 +3142,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginBottom: 4,
-  },
-  authInput: {
-    backgroundColor: '#0F172A',
-    borderWidth: 1,
-    borderColor: '#334155',
-    borderRadius: 6,
-    color: '#F8FAFC',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  submitAuthButton: {
-    backgroundColor: '#16A34A',
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  submitAuthText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
 });
 import { registerRootComponent } from 'expo';
