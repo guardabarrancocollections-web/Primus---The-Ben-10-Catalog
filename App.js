@@ -1,3 +1,4 @@
+import '@expo/metro-runtime';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
