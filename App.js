@@ -58,7 +58,7 @@ const webAuth = getAuth(app);
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Calculate item width for exactly 3 items per row with padding
+// Calculate item width for mobile grid
 const GRID_PADDING = 12;
 const GRID_GAP = 8;
 const CARD_WIDTH = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * 2) / 3;
@@ -238,222 +238,6 @@ const TRANSLATIONS = {
     fromLivesIn: 'De/Vive en',
     favoriteSmoothy: 'Smoothy Favorito',
     favoriteSeries: 'Serie Favorita',
-  },
-  pt: {
-    news: 'Notícias',
-    leaderboards: 'Classificação',
-    stats: 'Estatísticas',
-    filter: 'Filtro',
-    myProfile: 'Meu Perfil',
-    settings: 'Configurações',
-    logout: 'Sair',
-    login: 'Entrar',
-    register: 'Registrar',
-    email: 'Endereço de E-mail',
-    password: 'Senha',
-    username: 'Nome de Usuário',
-    filterOptions: 'Opções de Filtro',
-    showPointsScore: 'Mostrar Pontos e Pontuação',
-    filterBySeries: 'Filtrar por Série:',
-    allSeries: 'Todas as Séries',
-    osSeries: 'Série Original (2006-2007)',
-    afSeries: 'Alien Force (2008-2010)',
-    displayFigures: 'Exibir Figuras:',
-    all: 'Todas',
-    ownedOnly: 'Apenas Obtidas',
-    missingOnly: 'Apenas Faltantes',
-    resetFilters: 'Redefinir Filtros',
-    done: 'Concluído',
-    collectorScore: 'PONTUAÇÃO DE COLECIONADOR',
-    pts: 'PTS',
-    missing: 'FALTANDO',
-    newInBox: 'NOVO NA CAIXA',
-    looseComplete: 'SOLTO - COMPLETO',
-    looseIncomplete: 'SOLTO - INCOMPLETO',
-    selectLanguage: 'Selecionar Idioma',
-    searchPlaceholder: 'Pesquisar figuras em todas as séries...',
-    syncLeaderboard: 'Atualizar Pontuação no Placar',
-    newsTitle: 'NOTÍCIAS E ATUALIZAÇÕES',
-    leaderboardTitle: 'MELHORES COLECIONADORES',
-    statsPageTitle: 'Página de Estatísticas',
-    statsSortTitle: 'Ordenar Estatísticas',
-    mostOwnedToLeast: 'Figura mais possuída para a menos possuída',
-    leastOwnedToMost: 'Figura menos possuída para a mais possuída',
-    mostNibToLeast: 'Mais possuída (Nova na Caixa) para a menos possuída',
-    leastNibToMost: 'Menos possuída (Nova na Caixa) para a mais possuída',
-    mostLooseToLeast: 'Mais possuída (Solta) para a menos possuída',
-    leastLooseToMost: 'Menos possuída (Solta) para a mais possuída',
-    rank: 'POS',
-    user: 'USUÁRIO',
-    flag: 'BANDEIRA',
-    score: 'PONTUAÇÃO',
-    userIdLabel: 'ID de Usuário',
-    profileTitle: 'Perfil',
-    fromLivesIn: 'De/Mora em',
-    favoriteSmoothy: 'Smoothy Favorito',
-    favoriteSeries: 'Série Favorita',
-  },
-  th: {
-    news: 'ข่าวสาร',
-    leaderboards: 'ตารางผู้นำ',
-    stats: 'สถิติ',
-    filter: 'ตัวกรอง',
-    myProfile: 'โปรไฟล์ของฉัน',
-    settings: 'การตั้งค่า',
-    logout: 'ออกจากระบบ',
-    login: 'เข้าสู่ระบบ',
-    register: 'ลงทะเบียน',
-    email: 'อีเมล',
-    password: 'รหัสผ่าน',
-    username: 'ชื่อผู้ใช้',
-    filterOptions: 'ตัวเลือกตัวกรอง',
-    showPointsScore: 'แสดงคะแนน',
-    filterBySeries: 'กรองตามซีรีส์:',
-    allSeries: 'ทุกซีรีส์',
-    osSeries: 'ออริจินัลซีรีส์ (2006-2007)',
-    afSeries: 'เอเลี่ยน ฟอร์ซ (2008-2010)',
-    displayFigures: 'แสดงฟิกเกอร์:',
-    all: 'ทั้งหมด',
-    ownedOnly: 'ที่มีอยู่เท่านั้น',
-    missingOnly: 'ที่ยังไม่มีเท่านั้น',
-    resetFilters: 'รีเซ็ตตัวกรอง',
-    done: 'เสร็จสิ้น',
-    collectorScore: 'คะแนนนักสะสม',
-    pts: 'คะแนน',
-    missing: 'ยังไม่มี',
-    newInBox: 'ใหม่ในกล่อง',
-    looseComplete: 'ไม่มีกล่อง - สมบูรณ์',
-    looseIncomplete: 'ไม่มีกล่อง - ไม่สมบูรณ์',
-    selectLanguage: 'เลือกภาษา',
-    searchPlaceholder: 'ค้นหาฟิกเกอร์ในทุกซีรีส์...',
-    syncLeaderboard: 'อัปเดตคะแนนตารางผู้นำ',
-    newsTitle: 'ข่าวสารและอัปเดต',
-    leaderboardTitle: 'นักสะสมชั้นนำ',
-    statsPageTitle: 'หน้าสถิติ',
-    statsSortTitle: 'เรียงลำดับสถิติ',
-    mostOwnedToLeast: 'มีมากที่สุดไปน้อยที่สุด',
-    leastOwnedToMost: 'มีน้อยที่สุดไปมากที่สุด',
-    mostNibToLeast: 'มีมากที่สุด (ใหม่ในกล่อง) ไปน้อยที่สุด',
-    leastNibToMost: 'มีน้อยที่สุด (ใหม่ในกล่อง) ไปมากที่สุด',
-    mostLooseToLeast: 'มีมากที่สุด (ไม่มีกล่อง) ไปน้อยที่สุด',
-    leastLooseToMost: 'มีน้อยที่สุด (ไม่มีกล่อง) ไปมากที่สุด',
-    rank: 'อันดับ',
-    user: 'ผู้ใช้',
-    flag: 'ธง',
-    score: 'คะแนน',
-    userIdLabel: 'รหัสผู้ใช้',
-    profileTitle: 'โปรไฟล์',
-    fromLivesIn: 'มาจาก/อาศัยอยู่',
-    favoriteSmoothy: 'สมู่ธตี้โปรด',
-    favoriteSeries: 'ซีรีส์โปรด',
-  },
-  vi: {
-    news: 'Tin tức',
-    leaderboards: 'Bảng xếp hạng',
-    stats: 'Thống kê',
-    filter: 'Bộ lọc',
-    myProfile: 'Hồ sơ của tôi',
-    settings: 'Cài đặt',
-    logout: 'Đăng xuất',
-    login: 'Đăng nhập',
-    register: 'Đăng ký',
-    email: 'Địa chỉ Email',
-    password: 'Mật khẩu',
-    username: 'Tên người dùng',
-    filterOptions: 'Tùy chọn bộ lọc',
-    showPointsScore: 'Hiển thị Điểm & Điểm số',
-    filterBySeries: 'Lọc theo Series:',
-    allSeries: 'Tất cả Series',
-    osSeries: 'Original Series (2006-2007)',
-    afSeries: 'Alien Force (2008-2010)',
-    displayFigures: 'Hiển thị mô hình:',
-    all: 'Tất cả',
-    ownedOnly: 'Chỉ đã sở hữu',
-    missingOnly: 'Chỉ còn thiếu',
-    resetFilters: 'Đặt lại bộ lọc',
-    done: 'Xong',
-    collectorScore: 'ĐIỂM SỐ BỘ SƯU TẬP',
-    pts: 'ĐIỂM',
-    missing: 'THIẾU',
-    newInBox: 'MỚI TRONG HỘP',
-    looseComplete: 'RỜI - ĐẦY ĐỦ',
-    looseIncomplete: 'RỜI - THIẾU PHỤ KIỆN',
-    selectLanguage: 'Chọn ngôn ngữ',
-    searchPlaceholder: 'Tìm kiếm mô hình trong các series...',
-    syncLeaderboard: 'Cập nhật điểm Bảng xếp hạng',
-    newsTitle: 'TIN TỨC & CẬP NHẬT',
-    leaderboardTitle: 'TOP NGƯỜI SƯU TẬP',
-    statsPageTitle: 'Trang Thống kê',
-    statsSortTitle: 'Sắp xếp Thống kê',
-    mostOwnedToLeast: 'Sở hữu nhiều nhất đến ít nhất',
-    leastOwnedToMost: 'Sở hữu ít nhất đến nhiều nhất',
-    mostNibToLeast: 'Sở hữu nhiều nhất (Mới trong hộp) đến ít nhất',
-    leastNibToMost: 'Sở hữu ít nhất (Mới trong hộp) đến nhiều nhất',
-    mostLooseToLeast: 'Sở hữu nhiều nhất (Rời) đến ít nhất',
-    leastLooseToMost: 'Sở hữu ít nhất (Rời) đến nhiều nhất',
-    rank: 'HẠNG',
-    user: 'NGƯỜI DÙNG',
-    flag: 'CỜ',
-    score: 'ĐIỂM',
-    userIdLabel: 'ID Người dùng',
-    profileTitle: 'Hồ sơ',
-    fromLivesIn: 'Đến từ/Sống tại',
-    favoriteSmoothy: 'Sinh tố yêu thích',
-    favoriteSeries: 'Series yêu thích',
-  },
-  zh: {
-    news: '新闻',
-    leaderboards: '排行榜',
-    stats: '统计',
-    filter: '筛选',
-    myProfile: '个人主页',
-    settings: '设置',
-    logout: '退出登录',
-    login: '登录',
-    register: '注册',
-    email: '电子邮件',
-    password: '密码',
-    username: '用户名',
-    filterOptions: '筛选选项',
-    showPointsScore: '显示积分与分数',
-    filterBySeries: '按系列筛选：',
-    allSeries: '所有系列',
-    osSeries: '初代系列 (2006-2007)',
-    afSeries: '外星英雄 (2008-2010)',
-    displayFigures: '显示手办：',
-    all: '全部',
-    ownedOnly: '仅已拥有',
-    missingOnly: '仅未拥有',
-    resetFilters: '重置筛选',
-    done: '完成',
-    collectorScore: '收藏家积分',
-    pts: '分',
-    missing: '未拥有',
-    newInBox: '全新未拆',
-    looseComplete: '散货 - 散货齐全',
-    looseIncomplete: '散货 - 缺失配件',
-    selectLanguage: '选择语言',
-    searchPlaceholder: '跨系列搜索手办...',
-    syncLeaderboard: '更新排行榜分数',
-    newsTitle: '新闻与更新',
-    leaderboardTitle: '顶级收藏家',
-    statsPageTitle: '统计页面',
-    statsSortTitle: '统计排序',
-    mostOwnedToLeast: '拥有人数最多到最少',
-    leastOwnedToMost: '拥有人数最少到最多',
-    mostNibToLeast: '拥有最多（全新未拆）到最少',
-    leastNibToMost: '拥有最少（全新未拆）到最多',
-    mostLooseToLeast: '拥有最多（散货）到最少',
-    leastLooseToMost: '拥有最少（散货）到最多',
-    rank: '排名',
-    user: '用户',
-    flag: '国旗',
-    score: '得分',
-    userIdLabel: '用户 ID',
-    profileTitle: '个人资料',
-    fromLivesIn: '来自/居住于',
-    favoriteSmoothy: '最喜欢的冰沙',
-    favoriteSeries: '最喜欢的系列',
   },
 };
 
@@ -774,16 +558,18 @@ const LOCAL_SERIES_DATA = [
   },
 ];
 
-const FigureCard = ({ figure, ownershipState, onToggleState, showPoints, t }) => {
+const FigureCard = ({ figure, item, ownershipState, onToggleState, showPoints, t }) => {
   const { width } = useWindowDimensions();
   const isWebPC = Platform.OS === 'web' && width > 768;
 
+  const targetItem = item || figure;
+
   const imageSource =
     ownershipState === 3 || ownershipState === 4
-      ? figure.looseImageUrl
-      : figure.boxedImageUrl;
+      ? targetItem.looseImageUrl
+      : targetItem.boxedImageUrl;
 
-  const earnedPoints = calculateFigurePoints(figure, ownershipState);
+  const earnedPoints = calculateFigurePoints(targetItem, ownershipState);
 
   const renderBadgeLabel = () => {
     if (ownershipState === 0 || ownershipState === 1) return t.missing;
@@ -832,6 +618,9 @@ const FigureCard = ({ figure, ownershipState, onToggleState, showPoints, t }) =>
 };
 
 export default function App() {
+  const { width } = useWindowDimensions();
+  const isWebPC = Platform.OS === 'web' && width > 768;
+
   const [fontsLoaded] = useFonts({
     'DekoDisplay-Serial': require('./assets/DekoDisplay-Serial BoldItalic.ttf'),
   });
@@ -1299,14 +1088,18 @@ export default function App() {
         {/* Dynamic Background Overlays */}
         <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
           {LOCAL_SERIES_DATA.map((series, index) => {
-            const sectionHeight = SCREEN_HEIGHT * 0.6;
+            const isLast = index === LOCAL_SERIES_DATA.length - 1;
+            const prevTrigger = (index - 1) * SCREEN_HEIGHT;
+            const currentTrigger = index * SCREEN_HEIGHT;
+            const nextTrigger = (index + 1) * SCREEN_HEIGHT;
+
             const opacity = scrollY.interpolate({
-              inputRange: [
-                (index - 1) * sectionHeight,
-                index * sectionHeight,
-                (index + 1) * sectionHeight,
-              ],
-              outputRange: [0, 1, 0],
+              inputRange: isLast 
+                ? [prevTrigger, currentTrigger] 
+                : [prevTrigger, currentTrigger, nextTrigger],
+              outputRange: isLast 
+                ? [0, 1] 
+                : [0, 1, 0],
               extrapolate: 'clamp',
             });
 
@@ -1403,9 +1196,8 @@ export default function App() {
                 useNativeDriver: true,
                 listener: (event) => {
                   const yOffset = event.nativeEvent.contentOffset.y;
-                  const sectionHeight = SCREEN_HEIGHT * 0.4;
                   const newIndex = Math.min(
-                    Math.max(0, Math.floor((yOffset + sectionHeight / 2) / sectionHeight)),
+                    Math.max(0, Math.floor((yOffset + SCREEN_HEIGHT / 2) / (SCREEN_HEIGHT * 2))),
                     LOCAL_SERIES_DATA.length - 1
                   );
                   if (newIndex !== activeSeriesIndex) {
@@ -1424,17 +1216,24 @@ export default function App() {
                   <Text style={styles.seriesYearsText}>{series.years}</Text>
                 </View>
 
-                <View style={styles.gridContainer}>
-                  {series.figures.map((figure) => (
-                    <FigureCard
-                      key={figure.id}
-                      figure={figure}
-                      ownershipState={collectionState[figure.id] || 0}
-                      onToggleState={() => handleToggleFigure(figure.id)}
-                      showPoints={showPoints}
-                      t={t}
-                    />
-                  ))}
+                <View style={isWebPC && styles.webGridContainer}>
+                  <FlatList
+                    key={isWebPC ? 'web-grid-main' : 'mobile-grid-main'}
+                    data={series.figures}
+                    numColumns={isWebPC ? 11 : 3}
+                    columnWrapperStyle={isWebPC ? styles.webGridRow : null}
+                    renderItem={({ item }) => (
+                      <FigureCard
+                        item={item}
+                        ownershipState={collectionState[item.id] || 0}
+                        onToggleState={() => handleToggleFigure(item.id)}
+                        showPoints={showPoints}
+                        t={t}
+                      />
+                    )}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={{ width: '100%' }}
+                  />
                 </View>
 
                 {series.subsections &&
@@ -1444,17 +1243,24 @@ export default function App() {
                         <View style={styles.subsectionDividerLine} />
                         <Text style={styles.subsectionTitleText}>{sub.title}</Text>
                       </View>
-                      <View style={styles.gridContainer}>
-                        {sub.figures.map((figure) => (
-                          <FigureCard
-                            key={figure.id}
-                            figure={figure}
-                            ownershipState={collectionState[figure.id] || 0}
-                            onToggleState={() => handleToggleFigure(figure.id)}
-                            showPoints={showPoints}
-                            t={t}
-                          />
-                        ))}
+                      <View style={isWebPC && styles.webGridContainer}>
+                        <FlatList
+                          key={isWebPC ? `web-grid-sub-${subIndex}` : `mobile-grid-sub-${subIndex}`}
+                          data={sub.figures}
+                          numColumns={isWebPC ? 11 : 3}
+                          columnWrapperStyle={isWebPC ? styles.webGridRow : null}
+                          renderItem={({ item }) => (
+                            <FigureCard
+                              item={item}
+                              ownershipState={collectionState[item.id] || 0}
+                              onToggleState={() => handleToggleFigure(item.id)}
+                              showPoints={showPoints}
+                              t={t}
+                            />
+                          )}
+                          keyExtractor={(item) => item.id}
+                          contentContainerStyle={{ width: '100%' }}
+                        />
                       </View>
                     </View>
                   ))}
@@ -2096,34 +1902,6 @@ export default function App() {
                     >
                       <Text style={styles.filterChipText}>Español</Text>
                     </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.filterChipVertical, language === 'pt' && styles.filterChipActive]}
-                      onPress={() => handleSelectLanguage('pt')}
-                    >
-                      <Text style={styles.filterChipText}>Português</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.filterChipVertical, language === 'th' && styles.filterChipActive]}
-                      onPress={() => handleSelectLanguage('th')}
-                    >
-                      <Text style={styles.filterChipText}>ไทย</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.filterChipVertical, language === 'vi' && styles.filterChipActive]}
-                      onPress={() => handleSelectLanguage('vi')}
-                    >
-                      <Text style={styles.filterChipText}>Tiếng Việt</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.filterChipVertical, language === 'zh' && styles.filterChipActive]}
-                      onPress={() => handleSelectLanguage('zh')}
-                    >
-                      <Text style={styles.filterChipText}>中文</Text>
-                    </TouchableOpacity>
                   </View>
 
                   <View style={styles.menuDivider} />
@@ -2317,7 +2095,7 @@ const styles = StyleSheet.create({
   },
   fullScreenBackground: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    height: SCREEN_HEIGHT * 2,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -2411,12 +2189,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#888888',
     marginTop: 2,
-  },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: GRID_GAP,
-    justifyContent: 'flex-start',
   },
   subsectionContainer: {
     marginTop: 24,
@@ -2572,7 +2344,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cardContainerWebPC: {
-    height: CARD_WIDTH * 1.6,
+    width: 120,
+    maxHeight: 180,
+    aspectRatio: 1 / 1.5,
+    alignSelf: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
   },
   figureImageWrapper: {
     width: '100%',
@@ -2582,14 +2359,26 @@ const styles = StyleSheet.create({
   },
   figureImageWrapperWebPC: {
     width: '100%',
-    height: '82%',
+    height: '75%',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 6,
+    padding: 4,
+    overflow: 'hidden',
   },
   figureImage: {
     width: '100%',
     height: '100%',
+    resizeMode: 'contain',
+  },
+  webGridContainer: {
+    width: '100%',
+    maxWidth: 1450,
+    alignSelf: 'center',
+  },
+  webGridRow: {
+    justifyContent: 'flex-start',
+    gap: 12,
+    marginBottom: 12,
   },
   grayscale: {
     opacity: 0.3,
@@ -3013,18 +2802,17 @@ const styles = StyleSheet.create({
   },
   filterOptionGroup: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     gap: 8,
-    marginVertical: 4,
   },
   filterOptionGroupVertical: {
     gap: 8,
-    marginVertical: 4,
   },
   filterChip: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     backgroundColor: '#0F172A',
-    borderRadius: 6,
+    borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
@@ -3032,21 +2820,20 @@ const styles = StyleSheet.create({
   filterChipVertical: {
     width: '100%',
     paddingVertical: 10,
-    paddingHorizontal: 12,
     backgroundColor: '#0F172A',
-    borderRadius: 6,
+    borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#334155',
   },
   filterChipActive: {
     backgroundColor: '#2563EB',
-    borderColor: '#3B82F6',
+    borderColor: '#38BDF8',
   },
   filterChipText: {
     color: '#F8FAFC',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   filterFooterActionRow: {
     flexDirection: 'row',
@@ -3055,19 +2842,19 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   resetFilterBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
   },
   resetFilterText: {
     color: '#EF4444',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   closeButton: {
-    backgroundColor: '#2563EB',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 6,
+    backgroundColor: '#16A34A',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
   },
   closeButtonText: {
     color: '#FFFFFF',
@@ -3077,65 +2864,59 @@ const styles = StyleSheet.create({
   authTabGroup: {
     flexDirection: 'row',
     marginBottom: 16,
-    backgroundColor: '#0F172A',
-    borderRadius: 8,
-    padding: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
   },
   authTab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 6,
   },
   authTabActive: {
-    backgroundColor: '#2563EB',
+    borderBottomWidth: 2,
+    borderBottomColor: '#38BDF8',
   },
   authTabText: {
     color: '#F8FAFC',
     fontWeight: 'bold',
   },
-  inputLabel: {
-    color: '#94A3B8',
-    fontSize: 12,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  authInput: {
-    backgroundColor: '#0F172A',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#334155',
-    marginBottom: 8,
-  },
-  submitAuthButton: {
-    backgroundColor: '#16A34A',
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  submitAuthText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    borderColor: '#EF4444',
-    borderWidth: 1,
-    borderRadius: 6,
+    backgroundColor: '#7F1D1D',
     padding: 8,
-    marginBottom: 8,
+    borderRadius: 6,
+    marginBottom: 12,
   },
   errorText: {
     color: '#FCA5A5',
     fontSize: 12,
     textAlign: 'center',
   },
+  inputLabel: {
+    color: '#94A3B8',
+    fontSize: 12,
+    marginBottom: 4,
+    marginTop: 8,
+  },
+  authInput: {
+    backgroundColor: '#0F172A',
+    borderColor: '#334155',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    color: '#F8FAFC',
+    fontSize: 14,
+  },
+  submitAuthButton: {
+    backgroundColor: '#2563EB',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  submitAuthText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
 });
-import { registerRootComponent } from 'expo';
-
-registerRootComponent(App);

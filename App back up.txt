@@ -1,3 +1,4 @@
+import '@expo/metro-runtime';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   StyleSheet,
@@ -16,6 +17,7 @@ import {
   ScrollView,
   StatusBar,
   FlatList,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,12 +25,43 @@ import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
+// Firebase Modular Web Imports
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getAuth,
+  signInWithEmailAndPassword as signInWeb,
+  createUserWithEmailAndPassword as createUserWeb,
+  signOut as signOutWeb,
+  onAuthStateChanged as onAuthStateChangedWeb,
+} from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getDatabase, ref, set, get, child } from 'firebase/database';
+
+// Firebase Native Import (Mobile fallback)
+import authNative from '@react-native-firebase/auth';
+
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+};
+
+// Cross-Platform Firebase Initialization
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const db = getDatabase(app);
+const webAuth = getAuth(app);
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Calculate item width for exactly 3 items per row with padding
 const GRID_PADDING = 12;
 const GRID_GAP = 8;
-const CARD_WIDTH = (SCREEN_WIDTH - (GRID_PADDING * 2) - (GRID_GAP * 2)) / 3;
+const CARD_WIDTH = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * 2) / 3;
 
 const STORAGE_KEY = '@ben10_user_collection';
 const LANGUAGE_STORAGE_KEY = '@ben10_user_language';
@@ -67,13 +100,6 @@ const FLAG_OPTIONS = [
   { label: '🇬🇧 UK & 🇺🇸 US', value: '🇬🇧🇺🇸' },
   { label: '🇯🇵 Japan & 🇺🇸 US', value: '🇯🇵🇺🇸' },
 ];
-
-// Helper to generate a unique ID for registered users
-const generateUserId = () => {
-  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const timePart = Date.now().toString(36).toUpperCase();
-  return `USR-${randomPart}-${timePart}`;
-};
 
 const validateUsername = (username) => {
   const cleanUsername = username.trim().toLowerCase();
@@ -749,6 +775,9 @@ const LOCAL_SERIES_DATA = [
 ];
 
 const FigureCard = ({ figure, ownershipState, onToggleState, showPoints, t }) => {
+  const { width } = useWindowDimensions();
+  const isWebPC = Platform.OS === 'web' && width > 768;
+
   const imageSource =
     ownershipState === 3 || ownershipState === 4
       ? figure.looseImageUrl
@@ -773,16 +802,21 @@ const FigureCard = ({ figure, ownershipState, onToggleState, showPoints, t }) =>
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onToggleState}
-      style={styles.cardContainer}
+      style={[
+        styles.cardContainer,
+        isWebPC && styles.cardContainerWebPC,
+      ]}
     >
-      <Image
-        source={imageSource}
-        style={[
-          styles.figureImage,
-          (ownershipState === 0 || ownershipState === 1) && styles.grayscale,
-        ]}
-        resizeMode="contain"
-      />
+      <View style={isWebPC ? styles.figureImageWrapperWebPC : styles.figureImageWrapper}>
+        <Image
+          source={imageSource}
+          style={[
+            styles.figureImage,
+            (ownershipState === 0 || ownershipState === 1) && styles.grayscale,
+          ]}
+          resizeMode="contain"
+        />
+      </View>
       <View
         style={[
           styles.badge,
@@ -851,6 +885,7 @@ export default function App() {
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
+  // 1. Network connectivity listener
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOnline(!!state.isConnected);
@@ -858,6 +893,44 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // 2. Firebase Auth listener with platform fallback
+  useEffect(() => {
+    const handleAuthStateChanged = async (user) => {
+      if (user) {
+        try {
+          const userRef = ref(db, `users/${user.uid}`);
+          const snapshot = await get(userRef);
+
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            setCurrentUser({
+              userId: user.uid,
+              email: user.email,
+              username: userData.username || user.email.split('@')[0],
+            });
+          } else {
+            setCurrentUser({
+              userId: user.uid,
+              email: user.email,
+              username: user.email.split('@')[0],
+            });
+          }
+        } catch (error) {
+          console.error('Failed to fetch user data from Firebase:', error);
+        }
+      } else {
+        setCurrentUser(null);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      return onAuthStateChangedWeb(webAuth, handleAuthStateChanged);
+    } else {
+      return authNative().onAuthStateChanged(handleAuthStateChanged);
+    }
+  }, []);
+
+  // 3. App data loading
   useEffect(() => {
     const loadAppData = async () => {
       try {
@@ -866,16 +939,6 @@ export default function App() {
 
         const savedLang = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
         if (savedLang !== null) setLanguage(savedLang);
-
-        const savedUser = await AsyncStorage.getItem(USER_SESSION_KEY);
-        if (savedUser !== null) {
-          const parsedUser = JSON.parse(savedUser);
-          if (!parsedUser.userId) {
-            parsedUser.userId = generateUserId();
-            await AsyncStorage.setItem(USER_SESSION_KEY, JSON.stringify(parsedUser));
-          }
-          setCurrentUser(parsedUser);
-        }
 
         const savedProfile = await AsyncStorage.getItem(PROFILE_DATA_KEY);
         if (savedProfile !== null) {
@@ -1020,14 +1083,16 @@ export default function App() {
 
     const totalScore = calculateTotalScore();
     try {
-      await AsyncStorage.setItem(LEADERBOARD_SYNC_KEY, JSON.stringify({
-        userId: currentUser.userId,
+      await set(ref(db, `leaderboard/${currentUser.userId}`), {
         username: currentUser.username,
         score: totalScore,
-        lastSynced: new Date().toISOString(),
-      }));
+        flag: profileFlags,
+        updatedAt: new Date().toISOString(),
+      });
+
       Alert.alert('Leaderboard Updated!', `Successfully updated score to ${totalScore} PTS for @${currentUser.username}.`);
     } catch (e) {
+      console.error(e);
       Alert.alert('Sync Error', 'Failed to update leaderboard score.');
     }
   };
@@ -1045,33 +1110,70 @@ export default function App() {
       return;
     }
 
-    if (authMode === 'register') {
-      const usernameValidation = validateUsername(authUsername);
-      if (!usernameValidation.isValid) {
-        setAuthErrorMessage(usernameValidation.message);
-        return;
-      }
-    }
-
-    const userData = {
-      userId: generateUserId(),
-      email: authEmail.trim(),
-      username: authMode === 'register' ? authUsername.trim() : authEmail.split('@')[0],
-    };
-
     try {
-      await AsyncStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
-      setCurrentUser(userData);
+      let userRes;
+
+      if (authMode === 'register') {
+        const usernameValidation = validateUsername(authUsername);
+        if (!usernameValidation.isValid) {
+          setAuthErrorMessage(usernameValidation.message);
+          return;
+        }
+
+        if (Platform.OS === 'web') {
+          userRes = await createUserWeb(webAuth, authEmail.trim(), authPassword);
+        } else {
+          userRes = await authNative().createUserWithEmailAndPassword(authEmail.trim(), authPassword);
+        }
+
+        const userObj = userRes.user;
+
+        await set(ref(db, `users/${userObj.uid}`), {
+          username: authUsername.trim(),
+          email: authEmail.trim(),
+          createdAt: new Date().toISOString(),
+        });
+
+        setCurrentUser({
+          userId: userObj.uid,
+          email: userObj.email,
+          username: authUsername.trim(),
+        });
+      } else {
+        if (Platform.OS === 'web') {
+          userRes = await signInWeb(webAuth, authEmail.trim(), authPassword);
+        } else {
+          userRes = await authNative().signInWithEmailAndPassword(authEmail.trim(), authPassword);
+        }
+
+        const userObj = userRes.user;
+        const userSnapshot = await get(ref(db, `users/${userObj.uid}`));
+        const fetchedUsername = userSnapshot.exists() && userSnapshot.val().username 
+          ? userSnapshot.val().username 
+          : userObj.email.split('@')[0];
+
+        setCurrentUser({
+          userId: userObj.uid,
+          email: userObj.email,
+          username: fetchedUsername,
+        });
+      }
+
       setIsAuthModalOpen(false);
       setIsProfileMenuOpen(false);
       resetAuthFields();
     } catch (error) {
-      setAuthErrorMessage('Failed to save session.');
+      setAuthErrorMessage(error.message || 'Authentication failed.');
     }
   };
 
   const handleLogout = async () => {
     try {
+      if (Platform.OS === 'web') {
+        await signOutWeb(webAuth);
+      } else {
+        await authNative().signOut();
+      }
       await AsyncStorage.removeItem(USER_SESSION_KEY);
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -1514,7 +1616,7 @@ export default function App() {
           </SafeAreaView>
         </Modal>
 
-        {/* Modals */}
+        {/* Stats Modal */}
         <Modal
           visible={isStatsOpen}
           transparent={false}
@@ -1577,6 +1679,7 @@ export default function App() {
           </SafeAreaView>
         </Modal>
 
+        {/* Stats Filter Modal */}
         <Modal
           visible={isStatsFilterOpen}
           transparent={true}
@@ -1683,6 +1786,7 @@ export default function App() {
           </TouchableWithoutFeedback>
         </Modal>
 
+        {/* Leaderboard Modal */}
         <Modal
           visible={isLeaderboardOpen}
           transparent={false}
@@ -1731,6 +1835,7 @@ export default function App() {
           </SafeAreaView>
         </Modal>
 
+        {/* News Modal */}
         <Modal
           visible={isNewsOpen}
           transparent={false}
@@ -1767,6 +1872,7 @@ export default function App() {
           </SafeAreaView>
         </Modal>
 
+        {/* Profile Menu Modal */}
         <Modal
           visible={isProfileMenuOpen}
           transparent={true}
@@ -1859,6 +1965,7 @@ export default function App() {
           </TouchableWithoutFeedback>
         </Modal>
 
+        {/* Auth Modal */}
         <Modal
           visible={isAuthModalOpen}
           transparent={true}
@@ -1961,6 +2068,7 @@ export default function App() {
           </TouchableWithoutFeedback>
         </Modal>
 
+        {/* Settings Modal */}
         <Modal
           visible={isSettingsOpen}
           transparent={true}
@@ -2032,6 +2140,7 @@ export default function App() {
           </TouchableWithoutFeedback>
         </Modal>
 
+        {/* Menu Drawer Modal */}
         <Modal
           visible={isMenuOpen}
           transparent={true}
@@ -2101,6 +2210,7 @@ export default function App() {
           </TouchableWithoutFeedback>
         </Modal>
 
+        {/* Filter Modal */}
         <Modal
           visible={isFilterOpen}
           transparent={true}
@@ -2452,192 +2562,63 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
   },
-  filterCard: {
-    width: '100%',
-    maxHeight: '85%',
-    backgroundColor: '#1E293B',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  filterTitle: {
-    color: '#F8FAFC',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  filterRowLabel: {
-    color: '#E2E8F0',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  filterToggleValue: {
-    color: '#38BDF8',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  filterSectionHeader: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  filterOptionGroup: {
-    flexDirection: 'row',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  filterOptionGroupVertical: {
-    gap: 8,
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  filterChipVertical: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  filterChipActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#3B82F6',
-  },
-  filterChipText: {
-    color: '#F8FAFC',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  filterFooterActionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  resetFilterBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  resetFilterText: {
-    color: '#EF4444',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  closeButton: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  authTabGroup: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#334155',
-  },
-  authTab: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  authTabActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#38BDF8',
-  },
-  authTabText: {
-    color: '#F8FAFC',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
-  errorBox: {
-    backgroundColor: '#7F1D1D',
-    borderRadius: 6,
-    padding: 8,
-    marginBottom: 12,
-  },
-  errorText: {
-    color: '#FCA5A5',
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  inputLabel: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 4,
-    marginTop: 8,
-  },
-  authInput: {
-    backgroundColor: '#0F172A',
-    borderColor: '#334155',
-    borderWidth: 1,
-    borderRadius: 8,
-    color: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 14,
-  },
-  submitAuthButton: {
-    backgroundColor: '#10B981',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  submitAuthText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 15,
-  },
   cardContainer: {
     width: CARD_WIDTH,
+    height: CARD_WIDTH * 1.3,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    padding: 4,
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardContainerWebPC: {
+    width: '100%',
+    maxWidth: 280, // Prevents individual cards from expanding indefinitely
+    aspectRatio: 1 / 1.6, // Replaces fixed CARD_WIDTH calculation
+    alignSelf: 'center',
+  },
+  figureImageWrapper: {
+    width: '100%',
+    height: '75%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  figureImageWrapperWebPC: {
+    width: '100%',
+    height: '82%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 6,
+    overflow: 'hidden',
   },
   figureImage: {
-    width: CARD_WIDTH - 8,
-    height: CARD_WIDTH - 8,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  webGridContainer: {
+    width: '100%',
+    maxWidth: 1200, // Centers and limits total grid width on desktop screens
+    alignSelf: 'center',
   },
   grayscale: {
-    opacity: 0.4,
+    opacity: 0.3,
   },
   badge: {
-    marginTop: 6,
-    backgroundColor: '#334155',
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-    borderRadius: 4,
     width: '100%',
+    paddingVertical: 2,
+    borderRadius: 4,
+    backgroundColor: '#334155',
     alignItems: 'center',
   },
   badgeBoxed: {
     backgroundColor: '#16A34A',
   },
   badgeLooseComplete: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#2563EB',
   },
   badgeLooseIncomplete: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#D97706',
   },
   badgeText: {
     color: '#FFFFFF',
@@ -2645,48 +2626,292 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  newsModalContainer: {
+  publicProfileContainer: {
     flex: 1,
     backgroundColor: '#0F172A',
-    paddingTop: Platform.OS === 'ios' ? 12 : 0,
   },
-  newsHeader: {
-    height: 60,
+  publicProfileHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    alignItems: 'flex-end',
+  },
+  publicProfileCloseButton: {
+    padding: 8,
+  },
+  publicProfileCloseText: {
+    color: '#94A3B8',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  publicProfileBody: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  profileModalMainTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#F8FAFC',
+    marginBottom: 8,
+  },
+  profileModalUsername: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#38BDF8',
+  },
+  profileModalUserId: {
+    fontSize: 12,
+    color: '#64748B',
+    marginBottom: 20,
+  },
+  profileModalSubHeader: {
+    fontSize: 14,
+    color: '#94A3B8',
+    marginBottom: 6,
+  },
+  flagRowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  flagEmojiText: {
+    fontSize: 24,
+    marginRight: 8,
+  },
+  pencilIconButton: {
+    padding: 4,
+  },
+  pencilIconText: {
+    fontSize: 14,
+  },
+  flagPickerDropdown: {
     backgroundColor: '#1E293B',
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  flagOptionItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  flagOptionText: {
+    color: '#F8FAFC',
+    fontSize: 14,
+  },
+  profileTwoColumnRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 20,
+  },
+  profileBoxCard: {
+    flex: 1,
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
+    position: 'relative',
+  },
+  profileBoxTitle: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginBottom: 8,
+  },
+  smoothyInputText: {
+    color: '#F8FAFC',
+    fontSize: 14,
+    fontWeight: '600',
+    padding: 0,
+  },
+  seriesLogoSelectArea: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+  },
+  seriesLogoPreview: {
+    width: 80,
+    height: 30,
+  },
+  boxPencilPosition: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  seriesPickerContainer: {
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  seriesPickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  seriesPickerItemActive: {
+    backgroundColor: '#334155',
+  },
+  seriesPickerLogo: {
+    width: 40,
+    height: 20,
+    marginRight: 12,
+  },
+  seriesPickerLabel: {
+    color: '#F8FAFC',
+    fontSize: 14,
+  },
+  collectorScoreCenterBox: {
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  collectorScoreBoxTitle: {
+    color: '#94A3B8',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  scoreValueHighlightBox: {
+    backgroundColor: '#0F172A',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#39FF14',
+  },
+  scoreValueHighlightText: {
+    color: '#39FF14',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  statsModalContainer: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+  },
+  statsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderBottomWidth: 2,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
     borderBottomColor: '#334155',
+  },
+  statsFilterIconButton: {
+    padding: 8,
+  },
+  statsFilterIconText: {
+    color: '#94A3B8',
+    fontSize: 16,
+  },
+  statsHeaderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#F8FAFC',
+  },
+  statsCloseButton: {
+    padding: 8,
+  },
+  statsCloseButtonText: {
+    color: '#94A3B8',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  statsScroll: {
+    flex: 1,
+  },
+  statsGridContent: {
+    padding: 16,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  statsCardBox: {
+    width: (SCREEN_WIDTH - 44) / 2,
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    position: 'relative',
+  },
+  statsNumberBadge: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    backgroundColor: '#334155',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     zIndex: 10,
-    marginTop: Platform.OS === 'ios' ? 8 : 0,
+  },
+  statsNumberBadgeText: {
+    color: '#94A3B8',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  statsCardInnerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  statsLooseImage: {
+    width: 50,
+    height: 60,
+  },
+  statsDetailsColumn: {
+    marginLeft: 8,
+    flex: 1,
+  },
+  statsPctOwnText: {
+    color: '#38BDF8',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  statsPctSubText: {
+    color: '#94A3B8',
+    fontSize: 10,
+    marginTop: 2,
+  },
+  newsModalContainer: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+  },
+  newsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
   },
   newsHeaderBadge: {
-    backgroundColor: '#2563EB',
-    paddingHorizontal: 16,
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 8,
+    borderRadius: 6,
   },
   newsHeaderTitle: {
-    color: '#FFFFFF',
+    color: '#F8FAFC',
+    fontSize: 14,
     fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 1,
   },
   newsCloseButton: {
-    width: 38,
-    height: 38,
-    backgroundColor: '#EF4444',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#991B1B',
-    zIndex: 20,
+    padding: 8,
   },
   newsCloseButtonText: {
-    color: '#FFFFFF',
+    color: '#94A3B8',
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -2699,45 +2924,38 @@ const styles = StyleSheet.create({
   },
   newsCard: {
     backgroundColor: '#1E293B',
-    borderRadius: 14,
-    borderWidth: 2,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
     borderColor: '#334155',
-    flexDirection: 'row',
-    padding: 12,
-    alignItems: 'center',
   },
   newsCardImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    backgroundColor: '#334155',
+    width: '100%',
+    height: 140,
   },
   newsCardDetails: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
-    height: 90,
+    padding: 12,
   },
   newsCategory: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#38BDF8',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginBottom: 4,
   },
   newsCardTitle: {
     color: '#F8FAFC',
     fontSize: 16,
     fontWeight: 'bold',
-    marginVertical: 4,
+    marginBottom: 4,
   },
   newsDate: {
     color: '#64748B',
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 10,
   },
   leaderboardTableHeader: {
     flexDirection: 'row',
     backgroundColor: '#1E293B',
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#334155',
@@ -2748,319 +2966,186 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   leaderboardListPadding: {
-    paddingBottom: 20,
+    paddingVertical: 8,
   },
   leaderboardRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
+    alignItems: 'center',
   },
   leaderboardCell: {
     color: '#F8FAFC',
     fontSize: 14,
-    fontWeight: '600',
   },
-  rankCol: {
-    width: 60,
+  rankCol: { width: '15%' },
+  userCol: { width: '45%' },
+  flagCol: { width: '20%', textAlign: 'center' },
+  scoreCol: { width: '20%', textAlign: 'right' },
+  filterCard: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
-  userCol: {
-    flex: 1,
-  },
-  flagCol: {
-    width: 60,
+  filterTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#F8FAFC',
+    marginBottom: 16,
     textAlign: 'center',
   },
-  scoreCol: {
-    width: 90,
-    textAlign: 'right',
-    color: '#39FF14',
-  },
-  statsModalContainer: {
-    flex: 1,
-    backgroundColor: '#529182',
-    paddingTop: Platform.OS === 'ios' ? 12 : 0,
-  },
-  statsHeader: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  statsHeaderTitle: {
-    color: '#FFFFFF',
-    fontFamily: 'DekoDisplay-Serial',
-    fontSize: 28,
-    letterSpacing: 1,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-  },
-  statsCloseButton: {
-    width: 42,
-    height: 42,
-    backgroundColor: '#FF0000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 20,
-  },
-  statsCloseButtonText: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  statsFilterIconButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statsFilterIconText: {
-    fontSize: 32,
-    color: '#000000',
-  },
-  statsScroll: {
-    flex: 1,
-  },
-  statsGridContent: {
-    padding: 12,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    justifyContent: 'flex-start',
-  },
-  statsCardBox: {
-    width: (SCREEN_WIDTH - 36) / 2,
-    backgroundColor: '#2F3136',
-    borderRadius: 4,
-    padding: 8,
-    position: 'relative',
-    minHeight: 130,
-  },
-  statsNumberBadge: {
-    position: 'absolute',
-    top: 6,
-    left: 6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 5,
-  },
-  statsNumberBadgeText: {
-    color: '#000000',
-    fontWeight: 'bold',
+  filterSectionHeader: {
     fontSize: 12,
-  },
-  statsCardInnerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  statsLooseImage: {
-    width: 80,
-    height: 100,
-  },
-  statsDetailsColumn: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  statsPctOwnText: {
-    color: '#FFFFFF',
-    fontFamily: 'DekoDisplay-Serial',
-    fontSize: 18,
-    textAlign: 'right',
-  },
-  statsPctSubText: {
-    color: '#FFFFFF',
-    fontFamily: 'DekoDisplay-Serial',
-    fontSize: 16,
-    textAlign: 'right',
-    marginTop: 2,
-  },
-  publicProfileContainer: {
-    flex: 1,
-    backgroundColor: '#224B5D',
-  },
-  publicProfileHeader: {
-    height: 50,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  publicProfileCloseButton: {
-    width: 36,
-    height: 36,
-    backgroundColor: '#FF0000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  publicProfileCloseText: {
-    color: '#FFFFFF',
-    fontSize: 22,
     fontWeight: 'bold',
-  },
-  publicProfileBody: {
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  profileModalMainTitle: {
-    color: '#FFFFFF',
-    fontSize: 42,
-    fontWeight: 'bold',
+    color: '#94A3B8',
+    marginTop: 8,
     marginBottom: 8,
   },
-  profileModalUsername: {
-    color: '#FFFFFF',
-    fontSize: 34,
-    fontWeight: 'bold',
-  },
-  profileModalUserId: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  profileModalSubHeader: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  flagRowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  flagEmojiText: {
-    fontSize: 28,
-  },
-  pencilIconButton: {
-    marginLeft: 8,
-    padding: 4,
-  },
-  pencilIconText: {
-    fontSize: 16,
-  },
-  flagPickerDropdown: {
-    backgroundColor: '#1A3340',
-    borderRadius: 8,
-    padding: 8,
-    width: '80%',
-    marginBottom: 16,
-  },
-  flagOptionItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2C4C5E',
-  },
-  flagOptionText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-  },
-  profileTwoColumnRow: {
+  filterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
-    gap: 12,
-    marginTop: 8,
+    alignItems: 'center',
+    paddingVertical: 12,
   },
-  profileBoxCard: {
+  filterRowLabel: {
+    color: '#F8FAFC',
+    fontSize: 14,
+  },
+  filterToggleValue: {
+    color: '#38BDF8',
+    fontWeight: 'bold',
+  },
+  filterOptionGroup: {
+    flexDirection: 'row',
+    gap: 8,
+    marginVertical: 4,
+  },
+  filterOptionGroupVertical: {
+    gap: 8,
+    marginVertical: 4,
+  },
+  filterChip: {
     flex: 1,
-    backgroundColor: '#1E2125',
-    padding: 12,
-    borderRadius: 4,
-    minHeight: 100,
-    position: 'relative',
-    justifyContent: 'space-between',
-  },
-  profileBoxTitle: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  smoothyInputText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 8,
-    padding: 0,
-  },
-  boxPencilPosition: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-  },
-  seriesLogoSelectArea: {
+    paddingVertical: 8,
+    backgroundColor: '#0F172A',
+    borderRadius: 6,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
-  seriesLogoPreview: {
-    width: 70,
-    height: 45,
-  },
-  seriesPickerContainer: {
-    backgroundColor: '#14181B',
+  filterChipVertical: {
     width: '100%',
-    borderRadius: 8,
-    marginTop: 8,
-    padding: 8,
-  },
-  seriesPickerItem: {
-    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: '#0F172A',
+    borderRadius: 6,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  filterChipActive: {
+    backgroundColor: '#2563EB',
+    borderColor: '#3B82F6',
+  },
+  filterChipText: {
+    color: '#F8FAFC',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  filterFooterActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  resetFilterBtn: {
     paddingVertical: 8,
     paddingHorizontal: 12,
+  },
+  resetFilterText: {
+    color: '#EF4444',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    backgroundColor: '#2563EB',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     borderRadius: 6,
   },
-  seriesPickerItemActive: {
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  authTabGroup: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    backgroundColor: '#0F172A',
+    borderRadius: 8,
+    padding: 4,
+  },
+  authTab: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  authTabActive: {
     backgroundColor: '#2563EB',
   },
-  seriesPickerLogo: {
-    width: 40,
-    height: 25,
-    marginRight: 12,
+  authTabText: {
+    color: '#F8FAFC',
+    fontWeight: 'bold',
   },
-  seriesPickerLabel: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+  inputLabel: {
+    color: '#94A3B8',
+    fontSize: 12,
+    marginTop: 8,
+    marginBottom: 4,
   },
-  collectorScoreCenterBox: {
-    width: '100%',
-    backgroundColor: '#1E2125',
-    alignItems: 'center',
-    paddingVertical: 16,
+  authInput: {
+    backgroundColor: '#0F172A',
+    borderRadius: 6,
     paddingHorizontal: 12,
-    borderRadius: 4,
-    marginTop: 16,
+    paddingVertical: 10,
+    color: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 8,
   },
-  collectorScoreBoxTitle: {
+  submitAuthButton: {
+    backgroundColor: '#16A34A',
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  submitAuthText: {
     color: '#FFFFFF',
-    fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 12,
+    fontSize: 14,
   },
-  scoreValueHighlightBox: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
-    paddingHorizontal: 32,
-    borderRadius: 2,
+  errorBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    borderColor: '#EF4444',
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 8,
+    marginBottom: 8,
   },
-  scoreValueHighlightText: {
-    color: '#000000',
-    fontSize: 22,
-    fontWeight: 'bold',
+  errorText: {
+    color: '#FCA5A5',
+    fontSize: 12,
+    textAlign: 'center',
   },
 });
+import { registerRootComponent } from 'expo';
+
+registerRootComponent(App);
