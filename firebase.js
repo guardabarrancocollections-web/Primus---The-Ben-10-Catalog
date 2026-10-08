@@ -3,14 +3,14 @@ import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyByhXaQ7U2n8py7Cti9kR_pcheoo-ONZr8",
-  authDomain: "ben-10-catalog.firebaseapp.com",
-  databaseURL: "https://ben-10-catalog-default-rtdb.firebaseio.com",
-  projectId: "ben-10-catalog",
-  storageBucket: "ben-10-catalog.appspot.com",
-  messagingSenderId: "581203634751",
-  appId: "1:581203634751:web:9a4e2831a3d5b9c1d668a",
-  measurementId: "G-4RRWFKRSSV",
+  apiKey: "AIzaSyCdY2eGebI0CjUPHxUeF24Agi1dofhq1i8",
+  authDomain: "primus-ben10catalog.firebaseapp.com",
+  databaseURL: "https://primus-ben10catalog.firebaseio.com",
+  projectId: "primus-ben10catalog",
+  storageBucket: "primus-ben10catalog.firebasestorage.app",
+  messagingSenderId: "31572725772",
+  appId: "1:31572725772:web:34d3ba150c328e87355e29",
+  measurementId: "G-ND794J5BHZ"
 };
 
 // ADD THIS LINE TO DEBUG:
