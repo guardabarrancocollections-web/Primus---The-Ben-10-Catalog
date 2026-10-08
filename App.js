@@ -2880,7 +2880,7 @@ const styles = StyleSheet.create({
   newsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifycontent: 'space-between',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
