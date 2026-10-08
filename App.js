@@ -24,19 +24,43 @@ import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-// Firebase Imports
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+// Firebase Modular Web Imports
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getAuth,
+  signInWithEmailAndPassword as signInWeb,
+  createUserWithEmailAndPassword as createUserWeb,
+  signOut as signOutWeb,
+  onAuthStateChanged as onAuthStateChangedWeb,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { auth, db } from './firebase';
-import { ref, set, get, child } from 'firebase/database';
+import { getDatabase, ref, set, get, child } from 'firebase/database';
+
+// Firebase Native Import (Mobile fallback)
+import authNative from '@react-native-firebase/auth';
+
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+};
+
+// Cross-Platform Firebase Initialization
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const db = getDatabase(app);
+const webAuth = getAuth(app);
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Calculate item width for exactly 3 items per row with padding
 const GRID_PADDING = 12;
 const GRID_GAP = 8;
-const CARD_WIDTH = (SCREEN_WIDTH - (GRID_PADDING * 2) - (GRID_GAP * 2)) / 3;
+const CARD_WIDTH = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * 2) / 3;
 
 const STORAGE_KEY = '@ben10_user_collection';
 const LANGUAGE_STORAGE_KEY = '@ben10_user_language';
@@ -75,13 +99,6 @@ const FLAG_OPTIONS = [
   { label: '🇬🇧 UK & 🇺🇸 US', value: '🇬🇧🇺🇸' },
   { label: '🇯🇵 Japan & 🇺🇸 US', value: '🇯🇵🇺🇸' },
 ];
-
-// Helper to generate a unique ID for registered users
-const generateUserId = () => {
-  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-  const timePart = Date.now().toString(36).toUpperCase();
-  return `USR-${randomPart}-${timePart}`;
-};
 
 const validateUsername = (username) => {
   const cleanUsername = username.trim().toLowerCase();
@@ -867,12 +884,11 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // 2. Firebase Auth listener (Replaces AsyncStorage USER_SESSION_KEY)
+  // 2. Firebase Auth listener with platform fallback
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+    const handleAuthStateChanged = async (user) => {
       if (user) {
         try {
-          // Retrieve user metadata (like custom username) from Firebase Realtime Database
           const userRef = ref(db, `users/${user.uid}`);
           const snapshot = await get(userRef);
 
@@ -896,12 +912,16 @@ export default function App() {
       } else {
         setCurrentUser(null);
       }
-    });
+    };
 
-    return () => unsubscribeAuth();
+    if (Platform.OS === 'web') {
+      return onAuthStateChangedWeb(webAuth, handleAuthStateChanged);
+    } else {
+      return authNative().onAuthStateChanged(handleAuthStateChanged);
+    }
   }, []);
 
-  // 3. App data loading (Collection state, language, and local profile preferences)
+  // 3. App data loading
   useEffect(() => {
     const loadAppData = async () => {
       try {
@@ -1054,7 +1074,6 @@ export default function App() {
 
     const totalScore = calculateTotalScore();
     try {
-      // Save/Update score in Firebase Realtime Database under 'leaderboards'
       await set(ref(db, `leaderboard/${currentUser.userId}`), {
         username: currentUser.username,
         score: totalScore,
@@ -1083,6 +1102,8 @@ export default function App() {
     }
 
     try {
+      let userCredential;
+
       if (authMode === 'register') {
         const usernameValidation = validateUsername(authUsername);
         if (!usernameValidation.isValid) {
@@ -1090,41 +1111,42 @@ export default function App() {
           return;
         }
 
-        // Create new user in Firebase Auth
-        const userCredential = await createUserWithEmailAndPassword(
-          auth, 
-          authEmail.trim(), 
-          authPassword
-        );
+        if (Platform.OS === 'web') {
+          userCredential = await createUserWeb(webAuth, authEmail.trim(), authPassword);
+        } else {
+          userCredential = await authNative().createUserWithEmailAndPassword(authEmail.trim(), authPassword);
+        }
+
         const user = userCredential.user;
 
-        // Save user metadata to Firebase Realtime Database
         await set(ref(db, `users/${user.uid}`), {
           username: authUsername.trim(),
           email: authEmail.trim(),
           createdAt: new Date().toISOString(),
         });
       } else {
-        // Sign in existing user with Firebase Auth
-        await signInWithEmailAndPassword(
-          auth, 
-          authEmail.trim(), 
-          authPassword
-        );
+        if (Platform.OS === 'web') {
+          userCredential = await signInWeb(webAuth, authEmail.trim(), authPassword);
+        } else {
+          userCredential = await authNative().signInWithEmailAndPassword(authEmail.trim(), authPassword);
+        }
       }
 
       setIsAuthModalOpen(false);
       setIsProfileMenuOpen(false);
       resetAuthFields();
     } catch (error) {
-      // Handle Firebase Auth errors
       setAuthErrorMessage(error.message || 'Authentication failed.');
     }
   };
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      if (Platform.OS === 'web') {
+        await signOutWeb(webAuth);
+      } else {
+        await authNative().signOut();
+      }
       await AsyncStorage.removeItem(USER_SESSION_KEY);
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -3037,12 +3059,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    padding: 8,
-    borderRadius: 6,
-    marginBottom: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderWidth: 1,
     borderColor: '#EF4444',
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
   },
   errorText: {
     color: '#FCA5A5',
@@ -3052,25 +3074,26 @@ const styles = StyleSheet.create({
   inputLabel: {
     color: '#94A3B8',
     fontSize: 12,
+    fontWeight: '600',
     marginBottom: 4,
-    marginTop: 8,
   },
   authInput: {
     backgroundColor: '#0F172A',
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    color: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#334155',
+    borderRadius: 6,
+    color: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     fontSize: 14,
+    marginBottom: 12,
   },
   submitAuthButton: {
     backgroundColor: '#16A34A',
+    paddingVertical: 12,
     borderRadius: 6,
-    paddingVertical: 10,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 8,
   },
   submitAuthText: {
     color: '#FFFFFF',
