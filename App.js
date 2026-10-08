@@ -27,8 +27,8 @@ import NetInfo from '@react-native-community/netinfo';
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase Configuration & Initialization
-const SUPABASE_URL = 'https://YOUR_SUPABASE_PROJECT_URL.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://abcdefghijklm.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyaWR0ZHJmdWZmbm5jZnhlYnRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0OTU2NzgsImV4cCI6MjEwNzA3MTY3OH0.-PH0ss135ypVNbmENbz7mkywh0udkVO-09_7S7iEJT8ASE_ANON_KEY';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
