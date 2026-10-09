@@ -306,7 +306,7 @@ const LOCAL_SERIES_DATA = [
         name: 'Grey Matter',
         boxedImageUrl: require('./assets/os-Grey Matter-boxed.png'),
         looseImageUrl: require('./assets/os-Grey Matter-loose.png'),
-        basePoints: 50,
+ basePoints: 50,
         mockStats: { ownPct: 70, nibPct: 30, loosePct: 40 },
       },
       {
@@ -665,29 +665,49 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // 2. Supabase Auth listener
+  // 2. Fetch User Cloud Data
+  const fetchUserCloudData = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_collections')
+        .select('collection_data')
+        .eq('user_id', userId)
+        .single();
+
+      if (data && data.collection_data) {
+        setCollectionState(data.collection_data);
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data.collection_data));
+      }
+    } catch (err) {
+      console.warn('No cloud collection found or offline, using local storage.');
+    }
+  };
+
+  // 3. Supabase Auth listener
   useEffect(() => {
-    // Initial Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        setCurrentUser({
+        const u = {
           userId: session.user.id,
           email: session.user.email,
           username: session.user.user_metadata?.username || session.user.email.split('@')[0],
-        });
+        };
+        setCurrentUser(u);
+        fetchUserCloudData(u.userId);
       } else {
         setCurrentUser(null);
       }
     });
 
-    // Auth State Change Subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        setCurrentUser({
+        const u = {
           userId: session.user.id,
           email: session.user.email,
           username: session.user.user_metadata?.username || session.user.email.split('@')[0],
-        });
+        };
+        setCurrentUser(u);
+        fetchUserCloudData(u.userId);
       } else {
         setCurrentUser(null);
       }
@@ -696,7 +716,7 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // 3. App data loading
+  // 4. App local data loading
   useEffect(() => {
     const loadAppData = async () => {
       try {
@@ -758,7 +778,6 @@ export default function App() {
       console.error('Error fetching Supabase leaderboard data:', e);
     }
 
-    // Fallback to local user score if offline or empty
     if (remoteEntries.length === 0) {
       let activeSyncedUser = null;
       try {
@@ -837,10 +856,24 @@ export default function App() {
 
     setCollectionState(updatedCollection);
 
+    // 1. Local Cache Save
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCollection));
     } catch (error) {
       console.error('Failed to update local collection progress:', error);
+    }
+
+    // 2. Cloud Server Sync (If User is Logged In)
+    if (currentUser) {
+      try {
+        await supabase.from('user_collections').upsert({
+          user_id: currentUser.userId,
+          collection_data: updatedCollection,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error('Failed to sync collection with cloud:', err);
+      }
     }
   };
 
@@ -921,6 +954,7 @@ export default function App() {
             email: data.user.email,
             username: authUsername.trim(),
           });
+          fetchUserCloudData(data.user.id);
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -937,6 +971,7 @@ export default function App() {
             email: data.user.email,
             username: fetchedUsername,
           });
+          fetchUserCloudData(data.user.id);
         }
       }
 
