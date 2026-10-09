@@ -306,7 +306,7 @@ const LOCAL_SERIES_DATA = [
         name: 'Grey Matter',
         boxedImageUrl: require('./assets/os-Grey Matter-boxed.png'),
         looseImageUrl: require('./assets/os-Grey Matter-loose.png'),
- basePoints: 50,
+        basePoints: 50,
         mockStats: { ownPct: 70, nibPct: 30, loosePct: 40 },
       },
       {
@@ -899,21 +899,32 @@ export default function App() {
     }
 
     const totalScore = calculateTotalScore();
-    try {
-      const { error } = await supabase.from('leaderboard').upsert({
-        user_id: currentUser.userId,
-        username: currentUser.username,
-        score: totalScore,
-        flag: profileFlags,
-        updated_at: new Date().toISOString(),
-      });
 
-      if (error) throw error;
+    try {
+      const { data, error } = await supabase
+        .from('leaderboard')
+        .upsert(
+          {
+            user_id: currentUser.userId,
+            username: currentUser.username,
+            score: totalScore,
+            flag: profileFlags,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        )
+        .select();
+
+      if (error) {
+        console.error('Leaderboard Upsert Error Detail:', error);
+        Alert.alert('Sync Error', error.message || 'Failed to update leaderboard score.');
+        return;
+      }
 
       Alert.alert('Leaderboard Updated!', `Successfully updated score to ${totalScore} PTS for @${currentUser.username}.`);
     } catch (e) {
-      console.error(e);
-      Alert.alert('Sync Error', 'Failed to update leaderboard score.');
+      console.error('Unexpected Leaderboard Error:', e);
+      Alert.alert('Sync Error', 'An unexpected network error occurred.');
     }
   };
 
