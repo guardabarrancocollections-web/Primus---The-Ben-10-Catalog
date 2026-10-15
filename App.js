@@ -39,26 +39,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// Calculate item width for mobile grid
-const GRID_PADDING = 12;
-const GRID_GAP = 8;
-const CARD_WIDTH = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * 2) / 3;
-
 const STORAGE_KEY = '@ben10_user_collection';
 const LANGUAGE_STORAGE_KEY = '@ben10_user_language';
 const USER_SESSION_KEY = '@ben10_active_user';
 const LEADERBOARD_SYNC_KEY = '@ben10_leaderboard_score';
 const PROFILE_DATA_KEY = '@ben10_user_profile_data';
-
-const CONDITION_MULTIPLIERS = {
-  0: 0,
-  1: 0,
-  2: 2.0,
-  3: 1.0,
-  4: 0.5,
-};
 
 const PROHIBITED_USERNAME_TERMS = [
   '69', '420', '666',
@@ -77,16 +62,13 @@ const SERIES_LOGOS = [
 
 const AVAILABLE_FLAGS = [
   { label: 'None', value: '' },
-  // East Asia
   { label: '🇹🇼 Taiwan', value: '🇹🇼' },
   { label: '🇰🇷 South Korea', value: '🇰🇷' },
   { label: '🇨🇳 China', value: '🇨🇳' },
   { label: '🇯🇵 Japan', value: '🇯🇵' },
-  // North America
   { label: '🇺🇸 United States', value: '🇺🇸' },
   { label: '🇨🇦 Canada', value: '🇨🇦' },
   { label: '🇲🇽 Mexico', value: '🇲🇽' },
-  // Central America
   { label: '🇧🇿 Belize', value: '🇧🇿' },
   { label: '🇨🇷 Costa Rica', value: '🇨🇷' },
   { label: '🇸🇻 El Salvador', value: '🇸🇻' },
@@ -94,7 +76,6 @@ const AVAILABLE_FLAGS = [
   { label: '🇭🇳 Honduras', value: '🇭🇳' },
   { label: '🇳🇮 Nicaragua', value: '🇳🇮' },
   { label: '🇵🇦 Panama', value: '🇵🇦' },
-  // South America
   { label: '🇦🇷 Argentina', value: '🇦🇷' },
   { label: '🇧🇴 Bolivia', value: '🇧🇴' },
   { label: '🇧🇷 Brazil', value: '🇧🇷' },
@@ -107,7 +88,6 @@ const AVAILABLE_FLAGS = [
   { label: '🇸🇷 Suriname', value: '🇸🇷' },
   { label: '🇺🇾 Uruguay', value: '🇺🇾' },
   { label: '🇻🇪 Venezuela', value: '🇻🇪' },
-  // Other popular international
   { label: '🇬🇧 United Kingdom', value: '🇬🇧' },
   { label: '🇩🇪 Germany', value: '🇩🇪' },
   { label: '🇹🇷 Turkey', value: '🇹🇷' },
@@ -465,7 +445,7 @@ const TRANSLATIONS = {
     leaderboardTitle: '顶尖收藏家',
     statsPageTitle: '统计页面',
     statsSortTitle: '排序统计',
-    mostOwnedToLeast: '拥有最多到最少',
+    mostOwnedToLeast: '拥有拥有最多到最少',
     leastOwnedToMost: '拥有最少到最多',
     mostNibToLeast: '全新未拆最多到最少',
     leastNibToMost: '全新未拆最少到最多',
@@ -502,11 +482,31 @@ const NEWS_ITEMS = [
   },
 ];
 
+const hasLooseStates = (figure) => {
+  if (!figure) return true;
+  const lc = figure.LooseCompleteWorth;
+  const li = figure.LooseIncompleteWorth;
+  if (lc === 'None' || lc === false || li === 'None' || li === false) {
+    return false;
+  }
+  return true;
+};
+
 export const calculateFigurePoints = (figure, state) => {
   if (!state || state === 0 || state === 1) return 0;
   const base = figure.basePoints || 50;
-  const multiplier = CONDITION_MULTIPLIERS[state] || 0;
-  return base * multiplier;
+  if (state === 2) {
+    return figure.NewInBoxWorth !== undefined ? figure.NewInBoxWorth : base * 2.0;
+  }
+  if (state === 3) {
+    if (figure.LooseCompleteWorth === 'None' || figure.LooseCompleteWorth === false) return 0;
+    return figure.LooseCompleteWorth !== undefined ? figure.LooseCompleteWorth : base * 1.0;
+  }
+  if (state === 4) {
+    if (figure.LooseIncompleteWorth === 'None' || figure.LooseIncompleteWorth === false) return 0;
+    return figure.LooseIncompleteWorth !== undefined ? figure.LooseIncompleteWorth : base * 0.5;
+  }
+  return 0;
 };
 
 const LOCAL_SERIES_DATA = [
@@ -867,21 +867,30 @@ const LOCAL_SERIES_DATA = [
             name: '10 Figure Hero Set',
             boxedImageUrl: require('./assets/os-10 Figure Hero Set-boxed.png'),
             looseImageUrl: require('./assets/os-10 Figure Hero Set-loose.png'),
-            basePoints: 750,
+            basePoints: 125,
+            NewInBoxWorth: 1500,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-02',
             name: '10 Figure Hero Set 2',
             boxedImageUrl: require('./assets/os-10 Figure Hero Set 2-boxed.png'),
             looseImageUrl: require('./assets/os-10 Figure Hero Set 2-loose.png'),
-            basePoints: 750,
+            basePoints: 125,
+            NewInBoxWorth: 1500,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-03',
             name: '10 Figure Hero Set 3',
             boxedImageUrl: require('./assets/os-10 Figure Hero Set 3-boxed.png'),
             looseImageUrl: require('./assets/os-10 Figure Hero Set 3-loose.png'),
-            basePoints: 750,
+            basePoints: 125,
+            NewInBoxWorth: 1500,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-04',
@@ -889,6 +898,9 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Ben 10 Action Set-boxed.png'),
             looseImageUrl: require('./assets/os-Ben 10 Action Set-loose.png'),
             basePoints: 125,
+            NewInBoxWorth: 900,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-05',
@@ -896,6 +908,9 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Ben 10 Action Set B-boxed.png'),
             looseImageUrl: require('./assets/os-Ben 10 Action Set B-loose.png'),
             basePoints: 125,
+            NewInBoxWorth: 1000,
+            LooseCompleteWorth: 500,
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-06',
@@ -903,20 +918,29 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Ben 10 Heroes & Villains Set-boxed.png'),
             looseImageUrl: require('./assets/os-Ben 10 Heroes & Villains Set-loose.png'),
             basePoints: 125,
+            NewInBoxWorth: 1000,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-07',
             name: 'Bens Ultimate Hero Set',
             boxedImageUrl: require('./assets/os-Bens Ultimate Hero Set-boxed.png'),
             looseImageUrl: require('./assets/os-Bens Ultimate Hero Set-loose.png'),
-            basePoints: 375,
+            basePoints: 125,
+            NewInBoxWorth: 1200,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
           {
             id: 'os-mp-08',
             name: 'Ben Tennyson is Ultimate Alien Set',
             boxedImageUrl: require('./assets/os-Ben Tennyson is Ultimate Alien Set-boxed.png'),
             looseImageUrl: require('./assets/os-Ben Tennyson is Ultimate Alien Set-loose.png'),
-            basePoints: 375,
+            basePoints: 125,
+            NewInBoxWorth: 1200,
+            LooseCompleteWorth: 'None',
+            LooseIncompleteWorth: 'None',
           },
         ],
       },
@@ -1060,7 +1084,7 @@ const FigureCard = ({ figure, item, ownershipState, onToggleState, showPoints, t
   const targetItem = item || figure;
 
   const imageSource =
-    ownershipState === 3 || ownershipState === 4
+    (ownershipState === 3 || ownershipState === 4) && hasLooseStates(targetItem)
       ? targetItem.looseImageUrl
       : targetItem.boxedImageUrl;
 
@@ -1113,8 +1137,12 @@ const FigureCard = ({ figure, item, ownershipState, onToggleState, showPoints, t
 };
 
 export default function App() {
-  const { width } = useWindowDimensions();
-  const isWebPC = Platform.OS === 'web' && width > 768;
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
+  const isWebPC = Platform.OS === 'web' && SCREEN_WIDTH > 768;
+
+  const GRID_PADDING = 12;
+  const GRID_GAP = 8;
+  const CARD_WIDTH = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * 2) / 3;
 
   const [fontsLoaded] = useFonts({
     'DekoDisplay-Serial': require('./assets/DekoDisplay-Serial BoldItalic.ttf'),
@@ -1130,6 +1158,7 @@ export default function App() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
+  const [selectedUserCollection, setSelectedUserCollection] = useState({});
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNewsOpen, setIsNewsOpen] = useState(false);
@@ -1172,6 +1201,30 @@ export default function App() {
   const [showPoints, setShowPoints] = useState(false);
   const [ownershipFilter, setOwnershipFilter] = useState('ALL');
   const [seriesFilter, setSeriesFilter] = useState('ALL');
+
+  // Memoized figures lists placed correctly at the top level of hooks
+  const allFiguresList = useMemo(() => {
+    const list = [];
+    LOCAL_SERIES_DATA.forEach((series) => {
+      series.figures.forEach((fig) => list.push(fig));
+      if (series.subsections) {
+        series.subsections.forEach((sub) => {
+          sub.figures.forEach((fig) => list.push(fig));
+        });
+      }
+    });
+    return list;
+  }, []);
+
+  const ownedFiguresList = useMemo(() => {
+    const isViewingOther = selectedProfileUser && (!currentUser || selectedProfileUser.user_id !== currentUser.userId);
+    const activeCol = isViewingOther ? selectedUserCollection : collectionState;
+
+    return allFiguresList.filter((fig) => {
+      const state = activeCol[fig.id] || 0;
+      return state === 2 || state === 3 || state === 4;
+    });
+  }, [allFiguresList, collectionState, selectedProfileUser, selectedUserCollection, currentUser]);
 
   const activeSeries = LOCAL_SERIES_DATA[activeSeriesIndex];
 
@@ -1262,13 +1315,18 @@ export default function App() {
     try {
       const { data, error } = await supabase
         .from('user_collections')
-        .select('collection_data')
+        .select('collection_data, favorite_smoothy, favorite_series, favorite_figure')
         .eq('user_id', userId)
         .single();
 
-      if (data && data.collection_data) {
-        setCollectionState(data.collection_data);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data.collection_data));
+      if (data) {
+        if (data.collection_data) {
+          setCollectionState(data.collection_data);
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data.collection_data));
+        }
+        if (data.favorite_smoothy) setFavoriteSmoothy(data.favorite_smoothy);
+        if (data.favorite_series) setFavoriteSeries(data.favorite_series);
+        if (data.favorite_figure !== undefined) setFavoriteFigure(data.favorite_figure);
         fetchGlobalStats();
       }
     } catch (err) {
@@ -1343,6 +1401,7 @@ export default function App() {
   }, []);
 
   const saveProfileData = async (smoothy, series, f1, f2, favFig) => {
+    const updatedFavFig = favFig !== undefined ? favFig : favoriteFigure;
     try {
       await AsyncStorage.setItem(
         PROFILE_DATA_KEY,
@@ -1351,9 +1410,37 @@ export default function App() {
           favoriteSeries: series,
           profileFlag1: f1,
           profileFlag2: f2,
-          favoriteFigure: favFig !== undefined ? favFig : favoriteFigure,
+          favoriteFigure: updatedFavFig,
         })
       );
+
+      if (currentUser && isOnline) {
+        const combinedFlags = `${f1 || ''}${f2 || ''}`;
+        const totalScore = calculateCollectionScoreForFilter(collectionState, 'MAIN');
+        
+        await supabase.from('leaderboard').upsert(
+          {
+            user_id: currentUser.userId,
+            username: currentUser.username,
+            score: totalScore,
+            flag: combinedFlags,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+        await supabase.from('user_collections').upsert(
+          {
+            user_id: currentUser.userId,
+            collection_data: collectionState,
+            favorite_smoothy: smoothy,
+            favorite_series: series,
+            favorite_figure: updatedFavFig,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+      }
     } catch (e) {
       console.error('Failed to save profile details', e);
     }
@@ -1397,18 +1484,27 @@ export default function App() {
         .from('leaderboard')
         .select('user_id, username, flag, score');
 
-      if (!error && lbData) {
+      if (error) {
+        console.error('Error fetching Supabase leaderboard data:', error.message);
+      } else {
+        console.log('Successfully fetched leaderboard rows from Supabase:', lbData?.length || 0);
+      }
+
+      if (lbData && lbData.length > 0) {
         remoteEntries = lbData.map((item) => ({
           user_id: item.user_id,
           username: item.username,
           flag: item.flag || '',
+          favorite_smoothy: 'Grasshopper',
+          favorite_series: 'os-logo',
+          favorite_figure: null,
           score: filterType === 'MAIN' 
             ? (item.score || 0) 
             : (item.user_id === currentUser?.userId ? calculateCollectionScoreForFilter(collectionState, filterType) : (item.score || 0)),
         }));
       }
     } catch (e) {
-      console.error('Error fetching Supabase leaderboard data:', e);
+      console.error('Unexpected leaderboard fetch error:', e);
     }
 
     if (currentUser) {
@@ -1418,11 +1514,17 @@ export default function App() {
         remoteEntries[idx].score = liveScore;
         remoteEntries[idx].flag = getCombinedFlags();
         remoteEntries[idx].username = currentUser.username;
+        remoteEntries[idx].favorite_smoothy = favoriteSmoothy;
+        remoteEntries[idx].favorite_series = favoriteSeries;
+        remoteEntries[idx].favorite_figure = favoriteFigure;
       } else {
         remoteEntries.push({
           user_id: currentUser.userId,
           username: currentUser.username,
           flag: getCombinedFlags(),
+          favorite_smoothy: favoriteSmoothy,
+          favorite_series: favoriteSeries,
+          favorite_figure: favoriteFigure,
           score: liveScore,
         });
       }
@@ -1443,7 +1545,7 @@ export default function App() {
       const activeName = currentUser ? currentUser.username : (activeSyncedUser?.username || null);
 
       if (activeName) {
-        remoteEntries = [{ user_id: currentUser ? currentUser.userId : 'local', username: activeName, flag: getCombinedFlags(), score: currentScore }];
+        remoteEntries = [{ user_id: currentUser ? currentUser.userId : 'local', username: activeName, flag: getCombinedFlags(), favorite_smoothy: favoriteSmoothy, favorite_series: favoriteSeries, favorite_figure: favoriteFigure, score: currentScore }];
       }
     }
 
@@ -1457,6 +1559,9 @@ export default function App() {
         user_id: entry ? entry.user_id : null,
         username: entry ? `@${entry.username}` : '-',
         flag: entry ? entry.flag : '-',
+        favorite_smoothy: entry ? entry.favorite_smoothy : 'Grasshopper',
+        favorite_series: entry ? entry.favorite_series : 'os-logo',
+        favorite_figure: entry ? entry.favorite_figure : null,
         score: entry ? `${entry.score} PTS` : '-',
       };
     });
@@ -1488,8 +1593,20 @@ export default function App() {
   };
 
   const handleToggleFigure = async (figureId) => {
+    const figure = allFiguresList.find((f) => f.id === figureId);
     const currentState = collectionState[figureId] || 0;
-    const nextState = currentState === 0 || currentState === 1 ? 2 : currentState >= 4 ? 0 : currentState + 1;
+    const hasLoose = hasLooseStates(figure);
+
+    let nextState = 2;
+    if (currentState === 0 || currentState === 1) {
+      nextState = 2;
+    } else if (currentState === 2) {
+      nextState = hasLoose ? 3 : 0;
+    } else if (currentState === 3) {
+      nextState = 4;
+    } else {
+      nextState = 0;
+    }
 
     const updatedCollection = {
       ...collectionState,
@@ -1509,6 +1626,9 @@ export default function App() {
         const { error: colError } = await supabase.from('user_collections').upsert({
           user_id: currentUser.userId,
           collection_data: updatedCollection,
+          favorite_smoothy: favoriteSmoothy,
+          favorite_series: favoriteSeries,
+          favorite_figure: favoriteFigure,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
 
@@ -1670,6 +1790,7 @@ export default function App() {
     setIsProfileMenuOpen(false);
     setIsProfileModalOpen(false);
     setSelectedProfileUser(null);
+    setSelectedUserCollection({});
     setIsMenuOpen(false);
     setIsFilterOpen(false);
     setIsSettingsOpen(false);
@@ -1729,19 +1850,6 @@ export default function App() {
     });
   };
 
-  const allFiguresList = useMemo(() => {
-    const list = [];
-    LOCAL_SERIES_DATA.forEach((series) => {
-      series.figures.forEach((fig) => list.push(fig));
-      if (series.subsections) {
-        series.subsections.forEach((sub) => {
-          sub.figures.forEach((fig) => list.push(fig));
-        });
-      }
-    });
-    return list;
-  }, []);
-
   const sortedStatsFigures = useMemo(() => {
     const sorted = [...allFiguresList];
     sorted.sort((a, b) => {
@@ -1788,14 +1896,6 @@ export default function App() {
 
   const activeSeriesObj = SERIES_LOGOS.find((s) => s.id === currentProfileSeries) || SERIES_LOGOS[0];
   const favoriteFigureObj = allFiguresList.find((f) => f.id === currentProfileFigure) || null;
-
-  // Owned figures for collection box
-  const ownedFiguresList = useMemo(() => {
-    return allFiguresList.filter((fig) => {
-      const state = collectionState[fig.id] || 0;
-      return state === 2 || state === 3 || state === 4;
-    });
-  }, [allFiguresList, collectionState]);
 
   return (
     <SafeAreaProvider>
@@ -1887,7 +1987,6 @@ export default function App() {
             scrollEventThrottle={16}
             renderItem={({ item: series, index: seriesIdx }) => (
               <View style={[styles.seriesContainerBlock, series.id === 'alien-force' ? styles.alienForceBlock : styles.osBlock]}>
-                {/* Background Image Container for OS */}
                 {series.id !== 'alien-force' && (
                   <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
                     <Image
@@ -1898,7 +1997,6 @@ export default function App() {
                   </View>
                 )}
 
-                {/* Full-Width Base Header Strip Separator for Alien Force */}
                 {seriesIdx > 0 && (
                   <View style={styles.seriesBorderSeparatorContainer}>
                     <LinearGradient
@@ -1915,7 +2013,6 @@ export default function App() {
                   </View>
                 )}
 
-                {/* Alien Force Background Container (scoped cleanly below the separator) */}
                 {series.id === 'alien-force' && (
                   <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
                     <Image
@@ -2006,6 +2103,7 @@ export default function App() {
           onRequestClose={() => {
             setIsProfileModalOpen(false);
             setSelectedProfileUser(null);
+            setSelectedUserCollection({});
             setIsEditingFavoriteFigure(false);
           }}
         >
@@ -2016,6 +2114,7 @@ export default function App() {
                 onPress={() => {
                   setIsProfileModalOpen(false);
                   setSelectedProfileUser(null);
+                  setSelectedUserCollection({});
                   setIsEditingFavoriteFigure(false);
                 }}
                 hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
@@ -2037,7 +2136,6 @@ export default function App() {
 
               <Text style={styles.profileModalSubHeader}>{t.fromLivesIn}</Text>
               
-              {/* Separate Flag Pickers / Display */}
               <View style={styles.flagRowContainer}>
                 <View style={styles.singleFlagWrapper}>
                   <Text style={styles.flagEmojiText}>
@@ -2074,7 +2172,6 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Flag 1 Dropdown List */}
               {isEditingFlag1 && isMyProfile && currentUser && (
                 <View style={styles.flagPickerDropdown}>
                   <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={true}>
@@ -2095,7 +2192,6 @@ export default function App() {
                 </View>
               )}
 
-              {/* Flag 2 Dropdown List */}
               {isEditingFlag2 && isMyProfile && currentUser && (
                 <View style={styles.flagPickerDropdown}>
                   <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={true}>
@@ -2117,7 +2213,6 @@ export default function App() {
               )}
 
               <View style={styles.profileTwoColumnRow}>
-                {/* Favorite Smoothy Box */}
                 <View style={styles.profileBoxCard}>
                   <Text style={styles.profileBoxTitle}>{t.favoriteSmoothy}</Text>
                   {isMyProfile ? (
@@ -2142,7 +2237,6 @@ export default function App() {
                   )}
                 </View>
 
-                {/* Favorite Series Box */}
                 <View style={styles.profileBoxCard}>
                   <Text style={styles.profileBoxTitle}>{t.favoriteSeries}</Text>
                   <TouchableOpacity
@@ -2169,7 +2263,6 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Series Picker Dropdown Menu */}
               {isEditingSeries && isMyProfile && currentUser && (
                 <View style={styles.seriesPickerContainer}>
                   {SERIES_LOGOS.map((logoItem) => (
@@ -2192,9 +2285,7 @@ export default function App() {
                 </View>
               )}
 
-              {/* Row 2: Collector Score & Favorite Figure */}
               <View style={styles.profileTwoColumnRow}>
-                {/* Collector Score Box */}
                 <View style={styles.profileBoxCard}>
                   <Text style={styles.profileBoxTitle}>{t.collectorScore}</Text>
                   <View style={styles.scoreValueHighlightBox}>
@@ -2202,7 +2293,6 @@ export default function App() {
                   </View>
                 </View>
 
-                {/* Favorite Figure Box */}
                 <View style={styles.profileBoxCard}>
                   <Text style={styles.profileBoxTitle}>{t.favoriteFigure}</Text>
                   <TouchableOpacity
@@ -2235,7 +2325,6 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Favorite Figure Search Modal / Dropdown overlay */}
               {isEditingFavoriteFigure && isMyProfile && currentUser && (
                 <View style={styles.favoriteFigurePickerContainer}>
                   <TextInput
@@ -2274,14 +2363,15 @@ export default function App() {
                 </View>
               )}
 
-              {/* Collection Box */}
               <View style={styles.profileCollectionBox}>
                 <Text style={styles.profileCollectionBoxTitle}>{t.collection}</Text>
                 {ownedFiguresList.length > 0 ? (
                   <View style={styles.profileCollectionGrid}>
                     {ownedFiguresList.map((fig) => {
-                      const state = collectionState[fig.id] || 0;
-                      const imgSource = (state === 3 || state === 4) ? fig.looseImageUrl : fig.boxedImageUrl;
+                      const isViewingOther = selectedProfileUser && (!currentUser || selectedProfileUser.user_id !== currentUser.userId);
+                      const activeColMap = isViewingOther ? selectedUserCollection : collectionState;
+                      const state = activeColMap[fig.id] || 0;
+                      const imgSource = (state === 3 || state === 4) && hasLooseStates(fig) ? fig.looseImageUrl : fig.boxedImageUrl;
                       return (
                         <View key={`prof-col-${fig.id}`} style={styles.profileCollectionItemCard}>
                           <Image source={imgSource} style={styles.profileCollectionItemImage} resizeMode="contain" />
@@ -2525,19 +2615,36 @@ export default function App() {
                     ]}
                     activeOpacity={isClickable ? 0.7 : 1}
                     disabled={!isClickable}
-                    onPress={() => {
+                    onPress={async () => {
                       if (!isClickable) return;
 
                       setIsLeaderboardOpen(false);
 
+                      let fetchedCol = {};
+                      if (item.user_id && item.user_id !== 'local') {
+                        try {
+                          const { data: colData } = await supabase
+                            .from('user_collections')
+                            .select('collection_data')
+                            .eq('user_id', item.user_id)
+                            .single();
+                          if (colData && colData.collection_data) {
+                            fetchedCol = colData.collection_data;
+                          }
+                        } catch (e) {
+                          console.error('Failed to fetch user collection for public profile:', e);
+                        }
+                      }
+
+                      setSelectedUserCollection(fetchedCol);
                       setSelectedProfileUser({
                         username: item.username,
                         userId: item.user_id || 'PUBLIC-USER',
                         flags: item.flag || '',
                         score: item.score,
-                        favoriteSmoothy: item.user_id === currentUser?.userId ? favoriteSmoothy : 'Grasshopper',
-                        favoriteSeries: item.user_id === currentUser?.userId ? favoriteSeries : 'os-logo',
-                        favoriteFigure: item.user_id === currentUser?.userId ? favoriteFigure : null,
+                        favoriteSmoothy: item.favorite_smoothy || 'Grasshopper',
+                        favoriteSeries: item.favorite_series || 'os-logo',
+                        favoriteFigure: item.favorite_figure || null,
                       });
 
                       setIsProfileModalOpen(true);
@@ -2685,6 +2792,7 @@ export default function App() {
                         setIsAuthModalOpen(true);
                       } else {
                         setSelectedProfileUser(null);
+                        setSelectedUserCollection({});
                         setIsProfileModalOpen(true);
                       }
                     }}
