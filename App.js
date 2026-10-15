@@ -28,7 +28,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase Configuration & Initialization
 const SUPABASE_URL = 'https://wridtdrfuffnncfxebto.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyaWR0ZHJmdWZmbm5jZnhlYnRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0OTU2NzgsImV4cCI6MjEwNzA3MTY3OH0.-PH0ss135ypVNbmENbz7mkywh0udkVO-09_7S7iEJT8';
+const SUPABASE_ANON_KEY = 'sb_publishable_3ZnS-DzUGj3QSn4mi4aIPw_pMfszRxW';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -75,13 +75,46 @@ const SERIES_LOGOS = [
   { id: 'r-logo', name: 'Reboot', image: require('./assets/r-logo.png') },
 ];
 
-const FLAG_OPTIONS = [
-  { label: '🇺🇸 US Only', value: '🇺🇸' },
-  { label: '🇳🇮 Nicaragua & 🇺🇸 US', value: '🇳🇮🇺🇸' },
-  { label: '🇲🇽 Mexico & 🇺🇸 US', value: '🇲🇽🇺🇸' },
-  { label: '🇨🇦 Canada & 🇺🇸 US', value: '🇨🇦🇺🇸' },
-  { label: '🇬🇧 UK & 🇺🇸 US', value: '🇬🇧🇺🇸' },
-  { label: '🇯🇵 Japan & 🇺🇸 US', value: '🇯🇵🇺🇸' },
+const AVAILABLE_FLAGS = [
+  { label: 'None', value: '' },
+  // East Asia
+  { label: '🇹🇼 Taiwan', value: '🇹🇼' },
+  { label: '🇰🇷 South Korea', value: '🇰🇷' },
+  { label: '🇨🇳 China', value: '🇨🇳' },
+  { label: '🇯🇵 Japan', value: '🇯🇵' },
+  // North America
+  { label: '🇺🇸 United States', value: '🇺🇸' },
+  { label: '🇨🇦 Canada', value: '🇨🇦' },
+  { label: '🇲🇽 Mexico', value: '🇲🇽' },
+  // Central America
+  { label: '🇧🇿 Belize', value: '🇧🇿' },
+  { label: '🇨🇷 Costa Rica', value: '🇨🇷' },
+  { label: '🇸🇻 El Salvador', value: '🇸🇻' },
+  { label: '🇬🇹 Guatemala', value: '🇬🇹' },
+  { label: '🇭🇳 Honduras', value: '🇭🇳' },
+  { label: '🇳🇮 Nicaragua', value: '🇳🇮' },
+  { label: '🇵🇦 Panama', value: '🇵🇦' },
+  // South America
+  { label: '🇦🇷 Argentina', value: '🇦🇷' },
+  { label: '🇧🇴 Bolivia', value: '🇧🇴' },
+  { label: '🇧🇷 Brazil', value: '🇧🇷' },
+  { label: '🇨🇱 Chile', value: '🇨🇱' },
+  { label: '🇨🇴 Colombia', value: '🇨🇴' },
+  { label: '🇪🇨 Ecuador', value: '🇪🇨' },
+  { label: '🇬🇾 Guyana', value: '🇬🇾' },
+  { label: '🇵🇾 Paraguay', value: '🇵🇾' },
+  { label: '🇵🇪 Peru', value: '🇵🇪' },
+  { label: '🇸🇷 Suriname', value: '🇸🇷' },
+  { label: '🇺🇾 Uruguay', value: '🇺🇾' },
+  { label: '🇻🇪 Venezuela', value: '🇻🇪' },
+  // Other popular international
+  { label: '🇬🇧 United Kingdom', value: '🇬🇧' },
+  { label: '🇩🇪 Germany', value: '🇩🇪' },
+  { label: '🇹🇷 Turkey', value: '🇹🇷' },
+  { label: '🇵🇭 Philippines', value: '🇵🇭' },
+  { label: '🇪🇸 Spain', value: '🇪🇸' },
+  { label: '🇫🇷 France', value: '🇫🇷' },
+  { label: '🇮🇹 Italy', value: '🇮🇹' },
 ];
 
 const validateUsername = (username) => {
@@ -167,6 +200,8 @@ const TRANSLATIONS = {
     fromLivesIn: 'From/Lives in',
     favoriteSmoothy: 'Favorite Smoothy',
     favoriteSeries: 'Favorite Series',
+    favoriteFigure: 'Favorite Figure',
+    collection: 'Collection',
   },
   es: {
     news: 'Noticias',
@@ -221,6 +256,232 @@ const TRANSLATIONS = {
     fromLivesIn: 'De/Vive en',
     favoriteSmoothy: 'Smoothy Favorito',
     favoriteSeries: 'Serie Favorita',
+    favoriteFigure: 'Figura Favorita',
+    collection: 'Colección',
+  },
+  pt: {
+    news: 'Notícias',
+    leaderboards: 'Classificação',
+    stats: 'Estatísticas',
+    filter: 'Filtro',
+    myProfile: 'Meu Perfil',
+    settings: 'Configurações',
+    logout: 'Sair',
+    login: 'Entrar',
+    register: 'Registrar',
+    email: 'E-mail',
+    password: 'Senha',
+    username: 'Nome de Usuário',
+    filterOptions: 'Opções de Filtro',
+    showPointsScore: 'Mostrar Pontos e Pontuação',
+    filterBySeries: 'Filtrar por Série:',
+    allSeries: 'Todas as Séries',
+    osSeries: 'Série Original (2006-2007)',
+    afSeries: 'Alien Force (2008-2010)',
+    displayFigures: 'Exibir Figuras:',
+    all: 'Todas',
+    ownedOnly: 'Somente Adquiridos',
+    missingOnly: 'Somente Ausentes',
+    resetFilters: 'Redefinir Filtros',
+    done: 'Concluído',
+    collectorScore: 'PONTUAÇÃO DE COLECIONADOR',
+    pts: 'PTS',
+    missing: 'FALTANDO',
+    newInBox: 'NOVO NA CAIXA',
+    looseComplete: 'LOOSE - COMPLETO',
+    looseIncomplete: 'LOOSE - INCOMPLETO',
+    selectLanguage: 'Selecionar Idioma',
+    searchPlaceholder: 'Buscar figuras em todas as séries...',
+    syncLeaderboard: 'Atualizar Pontuação',
+    newsTitle: 'NOTÍCIAS E ATUALIZAÇÕES',
+    leaderboardTitle: 'PRINCIPAIS COLECIONADORES',
+    statsPageTitle: 'Página de Estatísticas',
+    statsSortTitle: 'Ordenar Estatísticas',
+    mostOwnedToLeast: 'Mais adquiridos para menos',
+    leastOwnedToMost: 'Menos adquiridos para mais',
+    mostNibToLeast: 'Mais adquiridos (Novo) para menos',
+    leastNibToMost: 'Menos adquiridos (Novo) para mais',
+    mostLooseToLeast: 'Mais adquiridos (Loose) para menos',
+    leastLooseToMost: 'Menos adquiridos (Loose) para mais',
+    rank: 'POS',
+    user: 'USUÁRIO',
+    flag: 'BANDEIRA',
+    score: 'PONTOS',
+    userIdLabel: 'ID de Usuário',
+    profileTitle: 'Perfil',
+    fromLivesIn: 'De/Mora em',
+    favoriteSmoothy: 'Smoothy Favorito',
+    favoriteSeries: 'Série Favorita',
+    favoriteFigure: 'Figura Favorita',
+    collection: 'Coleção',
+  },
+  th: {
+    news: 'ข่าวสาร',
+    leaderboards: 'ตารางคะแนน',
+    stats: 'สถิติ',
+    filter: 'ตัวกรอง',
+    myProfile: 'โปรไฟล์ของฉัน',
+    settings: 'ตั้งค่า',
+    logout: 'ออกจากระบบ',
+    login: 'เข้าสู่ระบบ',
+    register: 'ลงทะเบียน',
+    email: 'อีเมล',
+    password: 'รหัสผ่าน',
+    username: 'ชื่อผู้ใช้',
+    filterOptions: 'ตัวเลือกตัวกรอง',
+    showPointsScore: 'แสดงคะแนน',
+    filterBySeries: 'กรองตามซีรีส์:',
+    allSeries: 'ซีรีส์ทั้งหมด',
+    osSeries: 'ออริจินัลซีรีส์ (2006-2007)',
+    afSeries: 'เอเลี่ยนฟอร์ซ (2008-2010)',
+    displayFigures: 'แสดงฟิกเกอร์:',
+    all: 'ทั้งหมด',
+    ownedOnly: 'ที่มีอยู่',
+    missingOnly: 'ที่ยังไม่มี',
+    resetFilters: 'รีเซ็ตตัวกรอง',
+    done: 'เสร็จสิ้น',
+    collectorScore: 'คะแนนนักสะสม',
+    pts: 'คะแนน',
+    missing: 'ยังไม่มี',
+    newInBox: 'ใหม่ในกล่อง',
+    looseComplete: 'มือสอง - สมบูรณ์',
+    looseIncomplete: 'มือสอง - ไม่สมบูรณ์',
+    selectLanguage: 'เลือกภาษา',
+    searchPlaceholder: 'ค้นหาฟิกเกอร์ในทุกซีรีส์...',
+    syncLeaderboard: 'อัปเดตคะแนนลีดเดอร์บอร์ด',
+    newsTitle: 'ข่าวสารและอัปเดต',
+    leaderboardTitle: 'นักสะสมชั้นนำ',
+    statsPageTitle: 'หน้าสถิติ',
+    statsSortTitle: 'จัดเรียงสถิติ',
+    mostOwnedToLeast: 'มีมากที่สุดไปน้อยที่สุด',
+    leastOwnedToMost: 'มีน้อยที่สุดไปมากที่สุด',
+    mostNibToLeast: 'ของใหม่มากที่สุดไปน้อยที่สุด',
+    leastNibToMost: 'ของใหม่น้อยที่สุดไปมากที่สุด',
+    mostLooseToLeast: 'แกะแล้วมากที่สุดไปน้อยที่สุด',
+    leastLooseToMost: 'แกะแล้วน้อยที่สุดไปมากที่สุด',
+    rank: 'อันดับ',
+    user: 'ผู้ใช้',
+    flag: 'ธง',
+    score: 'คะแนน',
+    userIdLabel: 'รหัสผู้ใช้',
+    profileTitle: 'โปรไฟล์',
+    fromLivesIn: 'มาจาก/อาศัยอยู่ที่',
+    favoriteSmoothy: 'สการ์เร็ต สมูทตี้โปรด',
+    favoriteSeries: 'ซีรีส์โปรด',
+    favoriteFigure: 'ฟิกเกอร์โปรด',
+    collection: 'คอลเลกชัน',
+  },
+  hi: {
+    news: 'समाचार',
+    leaderboards: 'लीडरबोर्ड',
+    stats: 'आंकड़े',
+    filter: 'फ़िल्टर',
+    myProfile: 'मेरी प्रोफ़ाइल',
+    settings: 'सेटिंग्स',
+    logout: 'लॉग आउट',
+    login: 'लॉग इन',
+    register: 'पंजीकरण करें',
+    email: 'ईमेल पता',
+    password: 'पासवर्ड',
+    username: 'उपयोगकर्ता नाम',
+    filterOptions: 'फ़िल्टर विकल्प',
+    showPointsScore: 'अंक और स्कोर दिखाएं',
+    filterBySeries: 'श्रृंखला द्वारा फ़िल्टर करें:',
+    allSeries: 'सभी श्रृंखलाएं',
+    osSeries: 'मूल श्रृंखला (2006-2007)',
+    afSeries: 'एलियन फोर्स (2008-2010)',
+    displayFigures: 'चित्र दिखाएं:',
+    all: 'सभी',
+    ownedOnly: 'केवल स्वामित्व वाले',
+    missingOnly: 'केवल गायब',
+    resetFilters: 'फ़िल्टर रीसेट करें',
+    done: 'हो गया',
+    collectorScore: 'कलेक्टर स्कोर',
+    pts: 'अंक',
+    missing: 'गायब',
+    newInBox: 'डिब्बे में नया',
+    looseComplete: 'खुला - पूर्ण',
+    looseIncomplete: 'खुला - अधूरा',
+    selectLanguage: 'भाषा चुनें',
+    searchPlaceholder: 'सभी श्रृंखलाओं में खोजें...',
+    syncLeaderboard: 'लीडरबोर्ड स्कोर अपडेट करें',
+    newsTitle: 'समाचार और अपडेट',
+    leaderboardTitle: 'शीर्ष संग्राहक',
+    statsPageTitle: 'आंकड़े पृष्ठ',
+    statsSortTitle: 'आंकड़े क्रमबद्ध करें',
+    mostOwnedToLeast: 'सबसे अधिक से सबसे कम स्वामित्व',
+    leastOwnedToMost: 'सबसे कम से सबसे अधिक स्वामित्व',
+    mostNibToLeast: 'सबसे नया (बॉक्स में) से कम',
+    leastNibToMost: 'सबसे कम (बॉक्स में) से अधिक',
+    mostLooseToLeast: 'सबसे अधिक खुला से कम',
+    leastLooseToMost: 'सबसे कम खुला से अधिक',
+    rank: 'रैंक',
+    user: 'उपयोगकर्ता',
+    flag: 'ध्वज',
+    score: 'स्कोर',
+    userIdLabel: 'उपयोगकर्ता आईडी',
+    profileTitle: 'प्रोफ़ाइल',
+    fromLivesIn: 'से / में रहता है',
+    favoriteSmoothy: 'पसंदीदा स्मूदी',
+    favoriteSeries: 'पसंदीदा श्रृंखला',
+    favoriteFigure: 'पसंदीदा फ़िगर',
+    collection: 'संग्रह',
+  },
+  zh: {
+    news: '新闻',
+    leaderboards: '排行榜',
+    stats: '统计',
+    filter: '筛选',
+    myProfile: '我的个人资料',
+    settings: '设置',
+    logout: '退出登录',
+    login: '登录',
+    register: '注册',
+    email: '电子邮件地址',
+    password: '密码',
+    username: '用户名',
+    filterOptions: '筛选选项',
+    showPointsScore: '显示积分与分数',
+    filterBySeries: '按系列筛选：',
+    allSeries: '所有系列',
+    osSeries: '初代系列 (2006-2007)',
+    afSeries: '外星英雄 (2008-2010)',
+    displayFigures: '显示手办：',
+    all: '全部',
+    ownedOnly: '仅已拥有',
+    missingOnly: '仅未拥有',
+    resetFilters: '重置筛选',
+    done: '完成',
+    collectorScore: '收藏家积分',
+    pts: '分',
+    missing: '未拥有',
+    newInBox: '全新未拆',
+    looseComplete: '散货 - 完整',
+    looseIncomplete: '散货 - 缺失',
+    selectLanguage: '选择语言',
+    searchPlaceholder: '搜索跨系列手办...',
+    syncLeaderboard: '更新排行榜分数',
+    newsTitle: '新闻与更新',
+    leaderboardTitle: '顶尖收藏家',
+    statsPageTitle: '统计页面',
+    statsSortTitle: '排序统计',
+    mostOwnedToLeast: '拥有最多到最少',
+    leastOwnedToMost: '拥有最少到最多',
+    mostNibToLeast: '全新未拆最多到最少',
+    leastNibToMost: '全新未拆最少到最多',
+    mostLooseToLeast: '散货最多到最少',
+    leastLooseToMost: '散货最少到最多',
+    rank: '排名',
+    user: '用户',
+    flag: '旗帜',
+    score: '分数',
+    userIdLabel: '用户 ID',
+    profileTitle: '个人资料',
+    fromLivesIn: '来自 / 居住于',
+    favoriteSmoothy: '最喜欢的冰沙',
+    favoriteSeries: '最喜欢的系列',
+    favoriteFigure: '最喜欢的手办',
+    collection: '收藏',
   },
 };
 
@@ -267,7 +528,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-ben-boxed.png'),
         looseImageUrl: require('./assets/os-ben-loose.png'),
         basePoints: 50,
-        mockStats: { ownPct: 90, nibPct: 50, loosePct: 30 },
       },
       {
         id: 'os-02',
@@ -275,7 +535,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Heatblast-boxed.png'),
         looseImageUrl: require('./assets/os-Heatblast-loose.png'),
         basePoints: 50,
-        mockStats: { ownPct: 85, nibPct: 50, loosePct: 30 },
       },
       {
         id: 'os-03',
@@ -283,7 +542,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Wildmutt-boxed.png'),
         looseImageUrl: require('./assets/os-Wildmutt-loose.png'),
         basePoints: 50,
-        mockStats: { ownPct: 78, nibPct: 40, loosePct: 38 },
       },
       {
         id: 'os-04',
@@ -291,7 +549,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Diamondhead-boxed.png'),
         looseImageUrl: require('./assets/os-Diamondhead-loose.png'),
         basePoints: 50,
-        mockStats: { ownPct: 92, nibPct: 50, loosePct: 30 },
       },
       {
         id: 'os-05',
@@ -299,7 +556,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-XLR8-boxed.png'),
         looseImageUrl: require('./assets/os-XLR8-loose.png'),
         basePoints: 50,
-        mockStats: { ownPct: 88, nibPct: 45, loosePct: 43 },
       },
       {
         id: 'os-06',
@@ -307,7 +563,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Grey Matter-boxed.png'),
         looseImageUrl: require('./assets/os-Grey Matter-loose.png'),
         basePoints: 50,
-        mockStats: { ownPct: 70, nibPct: 30, loosePct: 40 },
       },
       {
         id: 'os-07',
@@ -315,7 +570,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Four Arms-boxed.png'),
         looseImageUrl: require('./assets/os-Four Arms-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 95, nibPct: 60, loosePct: 35 },
       },
       {
         id: 'os-08',
@@ -323,7 +577,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Stinkfly-boxed.png'),
         looseImageUrl: require('./assets/os-Stinkfly-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 65, nibPct: 25, loosePct: 40 },
       },
       {
         id: 'os-09',
@@ -331,7 +584,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Ripjaws-boxed.png'),
         looseImageUrl: require('./assets/os-Ripjaws-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 60, nibPct: 20, loosePct: 40 },
       },
       {
         id: 'os-10',
@@ -339,15 +591,13 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Upgrade-boxed.png'),
         looseImageUrl: require('./assets/os-Upgrade-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 82, nibPct: 42, loosePct: 40 },
       },
       {
         id: 'os-11',
         name: 'Ghostfreak',
         boxedImageUrl: require('./assets/os-Ghostfreak-boxed.png'),
         looseImageUrl: require('./assets/os-Ghostfreak-loose.png'),
-        basePoints: 75,
-        mockStats: { ownPct: 75, nibPct: 35, loosePct: 40 },
+        basePoints: 100,
       },
       {
         id: 'os-12',
@@ -355,15 +605,13 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Cannonbolt-boxed.png'),
         looseImageUrl: require('./assets/os-Cannonbolt-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 80, nibPct: 40, loosePct: 40 },
       },
       {
         id: 'os-13',
         name: 'Cannonbolt-Fixed-Variant',
         boxedImageUrl: require('./assets/os-Cannonbolt-Fixed-Variant-boxed.png'),
         looseImageUrl: require('./assets/os-Cannonbolt-Fixed-Variant-loose.png'),
-        basePoints: 75,
-        mockStats: { ownPct: 45, nibPct: 15, loosePct: 30 },
+        basePoints: 200,
       },
       {
         id: 'os-14',
@@ -371,7 +619,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Wildvine-boxed.png'),
         looseImageUrl: require('./assets/os-Wildvine-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 72, nibPct: 32, loosePct: 40 },
       },
       {
         id: 'os-15',
@@ -379,7 +626,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Benwolf (Blitzwolfer)-boxed.png'),
         looseImageUrl: require('./assets/os-Benwolf (Blitzwolfer)-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 68, nibPct: 28, loosePct: 40 },
       },
       {
         id: 'os-16',
@@ -387,7 +633,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Upchuck-boxed.png'),
         looseImageUrl: require('./assets/os-Upchuck-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 64, nibPct: 24, loosePct: 40 },
       },
       {
         id: 'os-17',
@@ -395,7 +640,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Tetrax-boxed.png'),
         looseImageUrl: require('./assets/os-Tetrax-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 55, nibPct: 20, loosePct: 35 },
       },
       {
         id: 'os-18',
@@ -403,7 +647,6 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-SixSix-boxed.png'),
         looseImageUrl: require('./assets/os-SixSix-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 58, nibPct: 22, loosePct: 36 },
       },
       {
         id: 'os-19',
@@ -411,7 +654,13 @@ const LOCAL_SERIES_DATA = [
         boxedImageUrl: require('./assets/os-Vilgax-boxed.png'),
         looseImageUrl: require('./assets/os-Vilgax-loose.png'),
         basePoints: 75,
-        mockStats: { ownPct: 81, nibPct: 41, loosePct: 40 },
+      },
+      {
+        id: 'os-20',
+        name: 'Kevin 11',
+        boxedImageUrl: require('./assets/os-Kevin 11-boxed.png'),
+        looseImageUrl: require('./assets/os-Kevin 11-loose.png'),
+        basePoints: 75,
       },
     ],
     subsections: [
@@ -424,7 +673,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Ben Tennyson (Battle Version)-boxed.png'),
             looseImageUrl: require('./assets/os-Ben Tennyson (Battle Version)-loose.png'),
             basePoints: 50,
-            mockStats: { ownPct: 50, nibPct: 20, loosePct: 30 },
           },
           {
             id: 'os-bv-02',
@@ -432,7 +680,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Ultra Ben (Battle Version)-boxed.png'),
             looseImageUrl: require('./assets/os-Ultra Ben (Battle Version)-loose.png'),
             basePoints: 50,
-            mockStats: { ownPct: 48, nibPct: 18, loosePct: 30 },
           },
           {
             id: 'os-bv-03',
@@ -440,7 +687,118 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Heatblast (Battle Version)-boxed.png'),
             looseImageUrl: require('./assets/os-Heatblast (Battle Version)-loose.png'),
             basePoints: 50,
-            mockStats: { ownPct: 52, nibPct: 22, loosePct: 30 },
+          },
+          {
+            id: 'os-bv-04',
+            name: 'Wildmutt (Battle Version)',
+            boxedImageUrl: require('./assets/os-Wildmutt (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Wildmutt (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-05',
+            name: 'Diamondhead (Battle Version)',
+            boxedImageUrl: require('./assets/os-Diamondhead (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Diamondhead (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-06',
+            name: 'XLR8 (Battle Version)',
+            boxedImageUrl: require('./assets/os-XLR8 (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-XLR8 (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-07',
+            name: 'Gwen with Grey Matter (Battle Version)',
+            boxedImageUrl: require('./assets/os-Gwen with Grey Matter (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Gwen with Grey Matter (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-08',
+            name: 'Four Arms (Battle Version)',
+            boxedImageUrl: require('./assets/os-Four Arms (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Four Arms (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-09',
+            name: 'Stinkfly (Battle Version)',
+            boxedImageUrl: require('./assets/os-Stinkfly (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Stinkfly (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-08-upg',
+            name: 'Upgrade (Battle Version)',
+            boxedImageUrl: require('./assets/os-Upgrade (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Upgrade (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-09-ghost',
+            name: 'Ghostfreak - Zs Skayr (Battle Version)',
+            boxedImageUrl: require('./assets/os-Ghostfreak - Zs Skayr (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Ghostfreak - Zs Skayr (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-10',
+            name: 'Cannonbolt (Battle Version)',
+            boxedImageUrl: require('./assets/os-Cannonbolt (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Cannonbolt (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-11',
+            name: 'Cannonbolt - Fixed (Battle Version)',
+            boxedImageUrl: require('./assets/os-Cannonbolt - Fixed (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Cannonbolt - Fixed (Battle Version)-loose.png'),
+            basePoints: 200,
+          },
+          {
+            id: 'os-bv-12',
+            name: 'Wildvine (Battle Version)',
+            boxedImageUrl: require('./assets/os-Wildvine (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Wildvine (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-13',
+            name: 'Benwolf (Blitzwolfer) (Battle Version)',
+            boxedImageUrl: require('./assets/os-Benwolf (Blitzwolfer) (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Benwolf (Blitzwolfer) (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-14',
+            name: 'Benmummy (Snare-Oh) (Battle Version)',
+            boxedImageUrl: require('./assets/os-Benmummy (Snare-Oh) (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Benmummy (Snare-Oh) (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-15',
+            name: 'Benvicktor (Frankenstrike) (Battle Version)',
+            boxedImageUrl: require('./assets/os-Benvicktor (Frankenstrike) (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Benvicktor (Frankenstrike) (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-16',
+            name: 'Upchuck (Battle Version)',
+            boxedImageUrl: require('./assets/os-Upchuck (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Upchuck (Battle Version)-loose.png'),
+            basePoints: 50,
+          },
+          {
+            id: 'os-bv-17',
+            name: 'Vilgax (Battle Version)',
+            boxedImageUrl: require('./assets/os-Vilgax (Battle Version)-boxed.png'),
+            looseImageUrl: require('./assets/os-Vilgax (Battle Version)-loose.png'),
+            basePoints: 50,
           },
         ],
       },
@@ -453,7 +811,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Heatblast (Alien Creature Series)-boxed.png'),
             looseImageUrl: require('./assets/os-Heatblast (Alien Creature Series)-loose.png'),
             basePoints: 100,
-            mockStats: { ownPct: 40, nibPct: 15, loosePct: 25 },
           },
           {
             id: 'os-acs-02',
@@ -461,7 +818,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Four Arms (Alien Creature Series)-boxed.png'),
             looseImageUrl: require('./assets/os-Four Arms (Alien Creature Series)-loose.png'),
             basePoints: 100,
-            mockStats: { ownPct: 42, nibPct: 17, loosePct: 25 },
           },
           {
             id: 'os-acs-03',
@@ -469,7 +825,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-XLR8 (Alien Creature Series)-boxed.png'),
             looseImageUrl: require('./assets/os-XLR8 (Alien Creature Series)-loose.png'),
             basePoints: 100,
-            mockStats: { ownPct: 38, nibPct: 13, loosePct: 25 },
           },
         ],
       },
@@ -482,7 +837,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Galvan Prime Ride-boxed.png'),
             looseImageUrl: require('./assets/os-Galvan Prime Ride-loose.png'),
             basePoints: 200,
-            mockStats: { ownPct: 30, nibPct: 10, loosePct: 20 },
           },
           {
             id: 'os-r-02',
@@ -490,7 +844,6 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Tetratanker-boxed.png'),
             looseImageUrl: require('./assets/os-Tetratanker-loose.png'),
             basePoints: 200,
-            mockStats: { ownPct: 32, nibPct: 12, loosePct: 20 },
           },
         ],
       },
@@ -503,7 +856,105 @@ const LOCAL_SERIES_DATA = [
             boxedImageUrl: require('./assets/os-Vilgax Battle Ship-boxed.png'),
             looseImageUrl: require('./assets/os-Vilgax Battle Ship-loose.png'),
             basePoints: 150,
-            mockStats: { ownPct: 25, nibPct: 8, loosePct: 17 },
+          },
+        ],
+      },
+      {
+        title: '10 Figure Hero, Action & Other Multipack Sets',
+        figures: [
+          {
+            id: 'os-mp-01',
+            name: '10 Figure Hero Set',
+            boxedImageUrl: require('./assets/os-10 Figure Hero Set-boxed.png'),
+            looseImageUrl: require('./assets/os-10 Figure Hero Set-loose.png'),
+            basePoints: 750,
+          },
+          {
+            id: 'os-mp-02',
+            name: '10 Figure Hero Set 2',
+            boxedImageUrl: require('./assets/os-10 Figure Hero Set 2-boxed.png'),
+            looseImageUrl: require('./assets/os-10 Figure Hero Set 2-loose.png'),
+            basePoints: 750,
+          },
+          {
+            id: 'os-mp-03',
+            name: '10 Figure Hero Set 3',
+            boxedImageUrl: require('./assets/os-10 Figure Hero Set 3-boxed.png'),
+            looseImageUrl: require('./assets/os-10 Figure Hero Set 3-loose.png'),
+            basePoints: 750,
+          },
+          {
+            id: 'os-mp-04',
+            name: 'Ben 10 Action Set',
+            boxedImageUrl: require('./assets/os-Ben 10 Action Set-boxed.png'),
+            looseImageUrl: require('./assets/os-Ben 10 Action Set-loose.png'),
+            basePoints: 125,
+          },
+          {
+            id: 'os-mp-05',
+            name: 'Ben 10 Action Set B',
+            boxedImageUrl: require('./assets/os-Ben 10 Action Set B-boxed.png'),
+            looseImageUrl: require('./assets/os-Ben 10 Action Set B-loose.png'),
+            basePoints: 125,
+          },
+          {
+            id: 'os-mp-06',
+            name: 'Ben 10 Heroes & Villains Set',
+            boxedImageUrl: require('./assets/os-Ben 10 Heroes & Villains Set-boxed.png'),
+            looseImageUrl: require('./assets/os-Ben 10 Heroes & Villains Set-loose.png'),
+            basePoints: 125,
+          },
+          {
+            id: 'os-mp-07',
+            name: 'Bens Ultimate Hero Set',
+            boxedImageUrl: require('./assets/os-Bens Ultimate Hero Set-boxed.png'),
+            looseImageUrl: require('./assets/os-Bens Ultimate Hero Set-loose.png'),
+            basePoints: 375,
+          },
+          {
+            id: 'os-mp-08',
+            name: 'Ben Tennyson is Ultimate Alien Set',
+            boxedImageUrl: require('./assets/os-Ben Tennyson is Ultimate Alien Set-boxed.png'),
+            looseImageUrl: require('./assets/os-Ben Tennyson is Ultimate Alien Set-loose.png'),
+            basePoints: 375,
+          },
+        ],
+      },
+      {
+        title: 'Omnitrixes',
+        figures: [
+          {
+            id: 'os-o-01',
+            name: 'Omnitrix FX',
+            boxedImageUrl: require('./assets/os-Omnitrix FX-boxed.png'),
+            looseImageUrl: require('./assets/os-Omnitrix FX-loose.png'),
+            basePoints: 500,
+          },
+          {
+            id: 'os-o-02',
+            name: 'Omnitrix Alien Viewer',
+            boxedImageUrl: require('./assets/os-Omnitrix Alien Viewer-boxed.png'),
+            looseImageUrl: require('./assets/os-Omnitrix Alien Viewer-loose.png'),
+            basePoints: 300,
+          },
+          {
+            id: 'os-o-03',
+            name: 'Deluxe Omnitrix',
+            boxedImageUrl: require('./assets/os-Deluxe Omnitrix-boxed.png'),
+            looseImageUrl: require('./assets/os-Deluxe Omnitrix-loose.png'),
+            basePoints: 500,
+          },
+        ],
+      },
+      {
+        title: 'DNA Alien Heroes',
+        figures: [
+          {
+            id: 'os-DAH-01',
+            name: 'Heatblast DNA',
+            boxedImageUrl: require('./assets/os-Heatblast DNA-boxed.png'),
+            looseImageUrl: require('./assets/os-Heatblast DNA-loose.png'),
+            basePoints: 75,
           },
         ],
       },
@@ -523,19 +974,80 @@ const LOCAL_SERIES_DATA = [
     figures: [
       {
         id: 'af-01',
-        name: 'Swampfire',
-        boxedImageUrl: require('./assets/af-swampfire-boxed.png'),
-        looseImageUrl: require('./assets/af-swampfire-loose.png'),
-        basePoints: 50,
-        mockStats: { ownPct: 86, nibPct: 50, loosePct: 36 },
+        name: 'Ben Tennyson v1',
+        boxedImageUrl: require('./assets/af-Ben Tennyson v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Ben Tennyson v1-loose.png'),
+        basePoints: 80,
       },
       {
         id: 'af-02',
-        name: 'Humungousaur',
-        boxedImageUrl: require('./assets/af-Humungousaur-boxed.png'),
-        looseImageUrl: require('./assets/af-Humungousaur-loose.png'),
-        basePoints: 50,
-        mockStats: { ownPct: 89, nibPct: 49, loosePct: 40 },
+        name: 'Swampfire v1',
+        boxedImageUrl: require('./assets/af-swampfire v1-boxed.png'),
+        looseImageUrl: require('./assets/af-swampfire v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-03',
+        name: 'Echo Echo v1',
+        boxedImageUrl: require('./assets/af-Echo Echo v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Echo Echo v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-04',
+        name: 'Humungousaur v1',
+        boxedImageUrl: require('./assets/af-Humungousaur v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Humungousaur v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-05',
+        name: 'Jet Ray v1',
+        boxedImageUrl: require('./assets/af-Jet Ray v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Jet Ray v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-06',
+        name: 'Big Chill v1',
+        boxedImageUrl: require('./assets/af-Big Chill v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Big Chill v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-07',
+        name: 'Chromastone v1',
+        boxedImageUrl: require('./assets/af-Chromastone v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Chromastone v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-08',
+        name: 'Brainstorm (Green Needle) v1',
+        boxedImageUrl: require('./assets/af-Brainstorm (Green Needle) v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Brainstorm (Green Needle) v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-09',
+        name: 'Spidermonkey v1',
+        boxedImageUrl: require('./assets/af-Spidermonkey v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Spidermonkey v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-10',
+        name: 'Goop v1',
+        boxedImageUrl: require('./assets/af-Goop v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Goop v1-loose.png'),
+        basePoints: 80,
+      },
+      {
+        id: 'af-11',
+        name: 'Alien X v1',
+        boxedImageUrl: require('./assets/af-Alien X v1-boxed.png'),
+        looseImageUrl: require('./assets/af-Alien X v1-loose.png'),
+        basePoints: 80,
       },
     ],
   },
@@ -617,21 +1129,30 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isNewsOpen, setIsNewsOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isLeaderboardFilterOpen, setIsLeaderboardFilterOpen] = useState(false);
+  const [leaderboardFilter, setLeaderboardFilter] = useState('MAIN');
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isStatsFilterOpen, setIsStatsFilterOpen] = useState(false);
   const [statsSortOrder, setStatsSortOrder] = useState('MOST_OWN');
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [globalStats, setGlobalStats] = useState({});
 
   // Profile Customization State
   const [favoriteSmoothy, setFavoriteSmoothy] = useState('Grasshopper');
   const [favoriteSeries, setFavoriteSeries] = useState('os-logo');
-  const [profileFlags, setProfileFlags] = useState('🇳🇮🇺🇸');
+  const [favoriteFigure, setFavoriteFigure] = useState(null);
+  const [isEditingFavoriteFigure, setIsEditingFavoriteFigure] = useState(false);
+  const [favoriteFigureSearchQuery, setFavoriteFigureSearchQuery] = useState('');
+  const [profileFlag1, setProfileFlag1] = useState('');
+  const [profileFlag2, setProfileFlag2] = useState('');
   const [isEditingSeries, setIsEditingSeries] = useState(false);
-  const [isEditingFlags, setIsEditingFlags] = useState(false);
+  const [isEditingFlag1, setIsEditingFlag1] = useState(false);
+  const [isEditingFlag2, setIsEditingFlag2] = useState(false);
 
   // Auth & User Session State
   const [currentUser, setCurrentUser] = useState(null);
@@ -653,9 +1174,10 @@ export default function App() {
   const [seriesFilter, setSeriesFilter] = useState('ALL');
 
   const activeSeries = LOCAL_SERIES_DATA[activeSeriesIndex];
-  const scrollY = useRef(new Animated.Value(0)).current;
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+
+  const getCombinedFlags = () => `${profileFlag1 || ''}${profileFlag2 || ''}`;
 
   // 1. Network connectivity listener
   useEffect(() => {
@@ -664,6 +1186,76 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Fetch Global User Collections for Real Stats across all online user collections in Supabase
+  const fetchGlobalStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_collections')
+        .select('collection_data');
+
+      const statsMap = {};
+
+      if (!error && data && data.length > 0) {
+        const totalUsers = data.length;
+
+        data.forEach((userRow) => {
+          const colData = userRow.collection_data || {};
+          Object.keys(colData).forEach((figId) => {
+            const state = colData[figId];
+            if (!statsMap[figId]) {
+              statsMap[figId] = { ownCount: 0, nibCount: 0, looseCount: 0 };
+            }
+            if (state === 2 || state === 3 || state === 4) {
+              statsMap[figId].ownCount += 1;
+            }
+            if (state === 2) {
+              statsMap[figId].nibCount += 1;
+            }
+            if (state === 3 || state === 4) {
+              statsMap[figId].looseCount += 1;
+            }
+          });
+        });
+
+        const computed = {};
+        Object.keys(statsMap).forEach((figId) => {
+          computed[figId] = {
+            ownPct: Math.round((statsMap[figId].ownCount / totalUsers) * 100),
+            nibPct: Math.round((statsMap[figId].nibCount / totalUsers) * 100),
+            loosePct: Math.round((statsMap[figId].looseCount / totalUsers) * 100),
+          };
+        });
+
+        setGlobalStats(computed);
+      } else {
+        const localUserCol = collectionState || {};
+        const totalEntries = Object.keys(localUserCol).length || 1;
+        const computed = {};
+
+        Object.keys(localUserCol).forEach((figId) => {
+          const state = localUserCol[figId];
+          const isOwned = state === 2 || state === 3 || state === 4;
+          const isNib = state === 2;
+          const isLoose = state === 3 || state === 4;
+
+          computed[figId] = {
+            ownPct: isOwned ? Math.round((1 / totalEntries) * 100) : 0,
+            nibPct: isNib ? Math.round((1 / totalEntries) * 100) : 0,
+            loosePct: isLoose ? Math.round((1 / totalEntries) * 100) : 0,
+          };
+        });
+
+        setGlobalStats(computed);
+      }
+    } catch (e) {
+      console.error('Error fetching global stats:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchGlobalStats();
+  }, [collectionState]);
 
   // 2. Fetch User Cloud Data
   const fetchUserCloudData = async (userId) => {
@@ -677,6 +1269,7 @@ export default function App() {
       if (data && data.collection_data) {
         setCollectionState(data.collection_data);
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data.collection_data));
+        fetchGlobalStats();
       }
     } catch (err) {
       console.warn('No cloud collection found or offline, using local storage.');
@@ -731,7 +1324,13 @@ export default function App() {
           const profile = JSON.parse(savedProfile);
           if (profile.favoriteSmoothy) setFavoriteSmoothy(profile.favoriteSmoothy);
           if (profile.favoriteSeries) setFavoriteSeries(profile.favoriteSeries);
-          if (profile.profileFlags) setProfileFlags(profile.profileFlags);
+          if (profile.favoriteFigure) setFavoriteFigure(profile.favoriteFigure);
+          if (profile.profileFlag1 !== undefined) setProfileFlag1(profile.profileFlag1);
+          if (profile.profileFlag2 !== undefined) setProfileFlag2(profile.profileFlag2);
+          else if (profile.profileFlags) {
+            setProfileFlag1(profile.profileFlags.slice(0, 2));
+            setProfileFlag2(profile.profileFlags.slice(2, 4));
+          }
         }
       } catch (error) {
         console.error('Failed to load local storage data:', error);
@@ -743,14 +1342,16 @@ export default function App() {
     loadAppData();
   }, []);
 
-  const saveProfileData = async (smoothy, series, flags) => {
+  const saveProfileData = async (smoothy, series, f1, f2, favFig) => {
     try {
       await AsyncStorage.setItem(
         PROFILE_DATA_KEY,
         JSON.stringify({
           favoriteSmoothy: smoothy,
           favoriteSeries: series,
-          profileFlags: flags,
+          profileFlag1: f1,
+          profileFlag2: f2,
+          favoriteFigure: favFig !== undefined ? favFig : favoriteFigure,
         })
       );
     } catch (e) {
@@ -758,25 +1359,76 @@ export default function App() {
     }
   };
 
-  const buildLeaderboardList = async () => {
+  const calculateCollectionScoreForFilter = (colData, filterType) => {
+    let totalScore = 0;
+    LOCAL_SERIES_DATA.forEach((series) => {
+      series.figures.forEach((figure) => {
+        const state = colData[figure.id] || 0;
+        if (filterType === 'MAIN') {
+          totalScore += calculateFigurePoints(figure, state);
+        } else if (filterType === 'NIB' && state === 2) {
+          totalScore += calculateFigurePoints(figure, state);
+        } else if (filterType === 'LOOSE' && (state === 3 || state === 4)) {
+          totalScore += calculateFigurePoints(figure, state);
+        }
+      });
+      if (series.subsections) {
+        series.subsections.forEach((sub) => {
+          sub.figures.forEach((figure) => {
+            const state = colData[figure.id] || 0;
+            if (filterType === 'MAIN') {
+              totalScore += calculateFigurePoints(figure, state);
+            } else if (filterType === 'NIB' && state === 2) {
+              totalScore += calculateFigurePoints(figure, state);
+            } else if (filterType === 'LOOSE' && (state === 3 || state === 4)) {
+              totalScore += calculateFigurePoints(figure, state);
+            }
+          });
+        });
+      }
+    });
+    return totalScore;
+  };
+
+  const buildLeaderboardList = async (filterType = leaderboardFilter) => {
     let remoteEntries = [];
     try {
-      const { data, error } = await supabase
+      const { data: lbData, error } = await supabase
         .from('leaderboard')
-        .select('user_id, username, flag, score')
-        .order('score', { ascending: false })
-        .limit(1000);
+        .select('user_id, username, flag, score');
 
-      if (!error && data) {
-        remoteEntries = data.map((item) => ({
+      if (!error && lbData) {
+        remoteEntries = lbData.map((item) => ({
+          user_id: item.user_id,
           username: item.username,
-          flag: item.flag,
-          score: item.score,
+          flag: item.flag || '',
+          score: filterType === 'MAIN' 
+            ? (item.score || 0) 
+            : (item.user_id === currentUser?.userId ? calculateCollectionScoreForFilter(collectionState, filterType) : (item.score || 0)),
         }));
       }
     } catch (e) {
       console.error('Error fetching Supabase leaderboard data:', e);
     }
+
+    if (currentUser) {
+      const liveScore = calculateCollectionScoreForFilter(collectionState, filterType);
+      const idx = remoteEntries.findIndex((e) => e.user_id === currentUser.userId);
+      if (idx !== -1) {
+        remoteEntries[idx].score = liveScore;
+        remoteEntries[idx].flag = getCombinedFlags();
+        remoteEntries[idx].username = currentUser.username;
+      } else {
+        remoteEntries.push({
+          user_id: currentUser.userId,
+          username: currentUser.username,
+          flag: getCombinedFlags(),
+          score: liveScore,
+        });
+      }
+    }
+
+    remoteEntries.sort((a, b) => b.score - a.score);
 
     if (remoteEntries.length === 0) {
       let activeSyncedUser = null;
@@ -787,11 +1439,11 @@ export default function App() {
         console.error('Error fetching leaderboard sync data', e);
       }
 
-      const currentScore = calculateTotalScore();
+      const currentScore = calculateCollectionScoreForFilter(collectionState, filterType);
       const activeName = currentUser ? currentUser.username : (activeSyncedUser?.username || null);
 
       if (activeName) {
-        remoteEntries = [{ username: activeName, flag: profileFlags, score: currentScore }];
+        remoteEntries = [{ user_id: currentUser ? currentUser.userId : 'local', username: activeName, flag: getCombinedFlags(), score: currentScore }];
       }
     }
 
@@ -802,6 +1454,7 @@ export default function App() {
       return {
         id: `slot-${position}`,
         position,
+        user_id: entry ? entry.user_id : null,
         username: entry ? `@${entry.username}` : '-',
         flag: entry ? entry.flag : '-',
         score: entry ? `${entry.score} PTS` : '-',
@@ -813,7 +1466,7 @@ export default function App() {
 
   const handleOpenLeaderboard = async () => {
     setIsMenuOpen(false);
-    await buildLeaderboardList();
+    await buildLeaderboardList(leaderboardFilter);
     setIsLeaderboardOpen(true);
   };
 
@@ -827,27 +1480,16 @@ export default function App() {
   };
 
   const calculateTotalScore = () => {
-    let totalScore = 0;
-    LOCAL_SERIES_DATA.forEach((series) => {
-      series.figures.forEach((figure) => {
-        const state = collectionState[figure.id] || 0;
-        totalScore += calculateFigurePoints(figure, state);
-      });
-      if (series.subsections) {
-        series.subsections.forEach((sub) => {
-          sub.figures.forEach((figure) => {
-            const state = collectionState[figure.id] || 0;
-            totalScore += calculateFigurePoints(figure, state);
-          });
-        });
-      }
-    });
-    return totalScore;
+    return calculateCollectionScoreForFilter(collectionState, 'MAIN');
+  };
+
+  const calculateCustomCollectionScore = (colData) => {
+    return calculateCollectionScoreForFilter(colData, 'MAIN');
   };
 
   const handleToggleFigure = async (figureId) => {
     const currentState = collectionState[figureId] || 0;
-    const nextState = currentState >= 4 ? 1 : currentState + 1;
+    const nextState = currentState === 0 || currentState === 1 ? 2 : currentState >= 4 ? 0 : currentState + 1;
 
     const updatedCollection = {
       ...collectionState,
@@ -856,23 +1498,45 @@ export default function App() {
 
     setCollectionState(updatedCollection);
 
-    // 1. Local Cache Save
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCollection));
     } catch (error) {
       console.error('Failed to update local collection progress:', error);
     }
 
-    // 2. Cloud Server Sync (If User is Logged In)
-    if (currentUser) {
+    if (currentUser && isOnline) {
       try {
-        await supabase.from('user_collections').upsert({
+        const { error: colError } = await supabase.from('user_collections').upsert({
           user_id: currentUser.userId,
           collection_data: updatedCollection,
           updated_at: new Date().toISOString(),
-        });
+        }, { onConflict: 'user_id' });
+
+        if (colError) {
+          console.error('Cloud collection autosave error:', colError.message);
+          return;
+        }
+
+        const newTotalScore = calculateCustomCollectionScore(updatedCollection);
+
+        const { error: lbError } = await supabase.from('leaderboard').upsert(
+          {
+            user_id: currentUser.userId,
+            username: currentUser.username,
+            score: newTotalScore,
+            flag: getCombinedFlags(),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+        if (lbError) {
+          console.error('Leaderboard auto-sync error:', lbError.message);
+        } else {
+          fetchGlobalStats();
+        }
       } catch (err) {
-        console.error('Failed to sync collection with cloud:', err);
+        console.error('Unexpected cloud sync error during figure toggle:', err);
       }
     }
   };
@@ -908,7 +1572,7 @@ export default function App() {
             user_id: currentUser.userId,
             username: currentUser.username,
             score: totalScore,
-            flag: profileFlags,
+            flag: getCombinedFlags(),
             updated_at: new Date().toISOString(),
           },
           { onConflict: 'user_id' }
@@ -1005,6 +1669,7 @@ export default function App() {
     setCurrentUser(null);
     setIsProfileMenuOpen(false);
     setIsProfileModalOpen(false);
+    setSelectedProfileUser(null);
     setIsMenuOpen(false);
     setIsFilterOpen(false);
     setIsSettingsOpen(false);
@@ -1080,8 +1745,8 @@ export default function App() {
   const sortedStatsFigures = useMemo(() => {
     const sorted = [...allFiguresList];
     sorted.sort((a, b) => {
-      const statsA = a.mockStats || { ownPct: 0, nibPct: 0, loosePct: 0 };
-      const statsB = b.mockStats || { ownPct: 0, nibPct: 0, loosePct: 0 };
+      const statsA = globalStats[a.id] || { ownPct: 0, nibPct: 0, loosePct: 0 };
+      const statsB = globalStats[b.id] || { ownPct: 0, nibPct: 0, loosePct: 0 };
 
       switch (statsSortOrder) {
         case 'MOST_OWN':
@@ -1101,7 +1766,7 @@ export default function App() {
       }
     });
     return sorted;
-  }, [allFiguresList, statsSortOrder]);
+  }, [allFiguresList, statsSortOrder, globalStats]);
 
   if (!fontsLoaded || !isStorageLoaded) {
     return (
@@ -1112,44 +1777,32 @@ export default function App() {
   }
 
   const filteredData = getFilteredSeriesData();
-  const selectedSeriesObj = SERIES_LOGOS.find((s) => s.id === favoriteSeries) || SERIES_LOGOS[0];
+  const isMyProfile = selectedProfileUser === null || (currentUser && selectedProfileUser.user_id === currentUser.userId);
+  const currentProfileUsername = isMyProfile ? (currentUser ? currentUser.username : 'Guardabarranco') : selectedProfileUser.username;
+  const currentProfileUserId = isMyProfile ? (currentUser ? currentUser.userId : 'USR-773921') : selectedProfileUser.userId;
+  const currentProfileFlags = isMyProfile ? getCombinedFlags() : selectedProfileUser.flags;
+  const currentProfileSmoothy = isMyProfile ? favoriteSmoothy : (selectedProfileUser.favoriteSmoothy || 'Grasshopper');
+  const currentProfileSeries = isMyProfile ? favoriteSeries : (selectedProfileUser.favoriteSeries || 'os-logo');
+  const currentProfileFigure = isMyProfile ? favoriteFigure : (selectedProfileUser.favoriteFigure || null);
+  const currentProfileScore = isMyProfile ? calculateTotalScore() : String(selectedProfileUser.score).replace(' PTS', '');
+
+  const activeSeriesObj = SERIES_LOGOS.find((s) => s.id === currentProfileSeries) || SERIES_LOGOS[0];
+  const favoriteFigureObj = allFiguresList.find((f) => f.id === currentProfileFigure) || null;
+
+  // Owned figures for collection box
+  const ownedFiguresList = useMemo(() => {
+    return allFiguresList.filter((fig) => {
+      const state = collectionState[fig.id] || 0;
+      return state === 2 || state === 3 || state === 4;
+    });
+  }, [allFiguresList, collectionState]);
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.mainContainer} edges={['top', 'left', 'right']}>
         <StatusBar barStyle={activeSeriesIndex === 0 ? 'dark-content' : 'light-content'} backgroundColor="transparent" translucent />
 
-        {/* Dynamic Background Overlays */}
-        <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-          {LOCAL_SERIES_DATA.map((series, index) => {
-            const isLast = index === LOCAL_SERIES_DATA.length - 1;
-            const prevTrigger = (index - 1) * SCREEN_HEIGHT;
-            const currentTrigger = index * SCREEN_HEIGHT;
-            const nextTrigger = (index + 1) * SCREEN_HEIGHT;
-
-            const opacity = scrollY.interpolate({
-              inputRange: isLast 
-                ? [prevTrigger, currentTrigger] 
-                : [prevTrigger, currentTrigger, nextTrigger],
-              outputRange: isLast 
-                ? [0, 1] 
-                : [0, 1, 0],
-              extrapolate: 'clamp',
-            });
-
-            return (
-              <Animated.Image
-                key={series.id}
-                source={series.backgroundUrl}
-                style={[styles.fullScreenBackground, { opacity }]}
-                resizeMode="cover"
-                pointerEvents="none"
-              />
-            );
-          })}
-        </View>
-
-        {/* Top Navigation Header Bar */}
+        {/* Top Header */}
         <View style={styles.topHeaderWrapper}>
           <LinearGradient
             colors={activeSeries.colors.headerGradient}
@@ -1217,87 +1870,119 @@ export default function App() {
 
         {/* Main Body Content List */}
         <View style={styles.contentBodyWrapper}>
-          <Animated.FlatList
+          <FlatList
             style={styles.listFlex}
             data={filteredData}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={true}
             scrollEnabled={true}
             contentContainerStyle={styles.listContentPadding}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-              {
-                useNativeDriver: true,
-                listener: (event) => {
-                  const yOffset = event.nativeEvent.contentOffset.y;
-                  const newIndex = Math.min(
-                    Math.max(0, Math.floor((yOffset + SCREEN_HEIGHT / 2) / (SCREEN_HEIGHT * 2))),
-                    LOCAL_SERIES_DATA.length - 1
-                  );
-                  if (newIndex !== activeSeriesIndex) {
-                    setActiveSeriesIndex(newIndex);
-                  }
-                },
+            onScroll={(event) => {
+              const yOffset = event.nativeEvent.contentOffset.y;
+              const newIndex = yOffset >= 1000 ? 1 : 0;
+              if (newIndex !== activeSeriesIndex) {
+                setActiveSeriesIndex(newIndex);
               }
-            )}
+            }}
             scrollEventThrottle={16}
-            renderItem={({ item: series }) => (
-              <View style={styles.seriesSection}>
-                <View style={styles.seriesTitleHeader}>
-                  <Text style={[styles.seriesTitleText, { color: series.colors.primaryText }]}>
-                    {series.title}
-                  </Text>
-                  <Text style={styles.seriesYearsText}>{series.years}</Text>
-                </View>
+            renderItem={({ item: series, index: seriesIdx }) => (
+              <View style={[styles.seriesContainerBlock, series.id === 'alien-force' ? styles.alienForceBlock : styles.osBlock]}>
+                {/* Background Image Container for OS */}
+                {series.id !== 'alien-force' && (
+                  <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+                    <Image
+                      source={series.backgroundUrl}
+                      style={styles.fullScreenBackground}
+                      resizeMode="cover"
+                    />
+                  </View>
+                )}
 
-                <View style={isWebPC && styles.webGridContainer}>
-                  <FlatList
-                    key={isWebPC ? 'web-grid-main' : 'mobile-grid-main'}
-                    data={series.figures}
-                    numColumns={isWebPC ? 11 : 3}
-                    columnWrapperStyle={isWebPC ? styles.webGridRow : null}
-                    renderItem={({ item }) => (
-                      <FigureCard
-                        item={item}
-                        ownershipState={collectionState[item.id] || 0}
-                        onToggleState={() => handleToggleFigure(item.id)}
-                        showPoints={showPoints}
-                        t={t}
-                      />
-                    )}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ width: '100%' }}
-                  />
-                </View>
+                {/* Full-Width Base Header Strip Separator for Alien Force */}
+                {seriesIdx > 0 && (
+                  <View style={styles.seriesBorderSeparatorContainer}>
+                    <LinearGradient
+                      colors={series.colors.headerGradient}
+                      style={StyleSheet.absoluteFill}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                    />
+                    <Image
+                      source={series.logoUrl}
+                      style={styles.seriesBorderLogoImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
 
-                {series.subsections &&
-                  series.subsections.map((sub, subIndex) => (
-                    <View key={subIndex} style={styles.subsectionContainer}>
-                      <View style={styles.subsectionDividerContainer}>
-                        <View style={styles.subsectionDividerLine} />
-                        <Text style={styles.subsectionTitleText}>{sub.title}</Text>
-                      </View>
-                      <View style={isWebPC && styles.webGridContainer}>
-                        <FlatList
-                          key={isWebPC ? `web-grid-sub-${subIndex}` : `mobile-grid-sub-${subIndex}`}
-                          data={sub.figures}
-                          numColumns={isWebPC ? 11 : 3}
-                          columnWrapperStyle={isWebPC ? styles.webGridRow : null}
-                          renderItem={({ item }) => (
-                            <FigureCard
-                              item={item}
-                              ownershipState={collectionState[item.id] || 0}
-                              onToggleState={() => handleToggleFigure(item.id)}
-                              showPoints={showPoints}
-                              t={t}
-                            />
-                          )}
-                          keyExtractor={(item) => item.id}
-                          contentContainerStyle={{ width: '100%' }}
+                {/* Alien Force Background Container (scoped cleanly below the separator) */}
+                {series.id === 'alien-force' && (
+                  <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+                    <Image
+                      source={series.backgroundUrl}
+                      style={styles.fullScreenBackground}
+                      resizeMode="cover"
+                    />
+                  </View>
+                )}
+
+                <View style={styles.seriesSection}>
+                  <View style={styles.seriesTitleHeader}>
+                    <Text style={[styles.seriesTitleText, { color: series.colors.primaryText }]}>
+                      {series.title}
+                    </Text>
+                    <Text style={styles.seriesYearsText}>{series.years}</Text>
+                  </View>
+
+                  <View style={isWebPC && styles.webGridContainer}>
+                    <FlatList
+                      key={isWebPC ? 'web-grid-main' : 'mobile-grid-main'}
+                      data={series.figures}
+                      numColumns={isWebPC ? 11 : 3}
+                      columnWrapperStyle={isWebPC ? styles.webGridRow : null}
+                      renderItem={({ item }) => (
+                        <FigureCard
+                          item={item}
+                          ownershipState={collectionState[item.id] || 0}
+                          onToggleState={() => handleToggleFigure(item.id)}
+                          showPoints={showPoints}
+                          t={t}
                         />
+                      )}
+                      keyExtractor={(item) => item.id}
+                      contentContainerStyle={{ width: '100%' }}
+                    />
+                  </View>
+
+                  {series.subsections &&
+                    series.subsections.map((sub, subIndex) => (
+                      <View key={subIndex} style={styles.subsectionContainer}>
+                        <View style={styles.subsectionDividerContainer}>
+                          <View style={styles.subsectionDividerLine} />
+                          <Text style={styles.subsectionTitleText}>{sub.title}</Text>
+                        </View>
+                        <View style={isWebPC && styles.webGridContainer}>
+                          <FlatList
+                            key={isWebPC ? `web-grid-sub-${subIndex}` : `mobile-grid-sub-${subIndex}`}
+                            data={sub.figures}
+                            numColumns={isWebPC ? 11 : 3}
+                            columnWrapperStyle={isWebPC ? styles.webGridRow : null}
+                            renderItem={({ item }) => (
+                              <FigureCard
+                                item={item}
+                                ownershipState={collectionState[item.id] || 0}
+                                onToggleState={() => handleToggleFigure(item.id)}
+                                showPoints={showPoints}
+                                t={t}
+                              />
+                            )}
+                            keyExtractor={(item) => item.id}
+                            contentContainerStyle={{ width: '100%' }}
+                          />
+                        </View>
                       </View>
-                    </View>
-                  ))}
+                    ))}
+                </View>
               </View>
             )}
           />
@@ -1318,13 +2003,21 @@ export default function App() {
           visible={isProfileModalOpen}
           transparent={false}
           animationType="slide"
-          onRequestClose={() => setIsProfileModalOpen(false)}
+          onRequestClose={() => {
+            setIsProfileModalOpen(false);
+            setSelectedProfileUser(null);
+            setIsEditingFavoriteFigure(false);
+          }}
         >
           <SafeAreaView style={styles.publicProfileContainer} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.publicProfileHeader}>
               <TouchableOpacity
                 style={styles.publicProfileCloseButton}
-                onPress={() => setIsProfileModalOpen(false)}
+                onPress={() => {
+                  setIsProfileModalOpen(false);
+                  setSelectedProfileUser(null);
+                  setIsEditingFavoriteFigure(false);
+                }}
                 hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
               >
                 <Text style={styles.publicProfileCloseText}>✕</Text>
@@ -1335,41 +2028,91 @@ export default function App() {
               <Text style={styles.profileModalMainTitle}>{t.profileTitle}</Text>
 
               <Text style={styles.profileModalUsername}>
-                {currentUser ? currentUser.username : 'Guardabarranco'}
+                {currentProfileUsername.startsWith('@') ? currentProfileUsername : `@${currentProfileUsername}`}
               </Text>
 
               <Text style={styles.profileModalUserId}>
-                #{currentUser ? currentUser.userId : 'USR-773921'}
+                #{currentProfileUserId}
               </Text>
 
               <Text style={styles.profileModalSubHeader}>{t.fromLivesIn}</Text>
+              
+              {/* Separate Flag Pickers / Display */}
               <View style={styles.flagRowContainer}>
-                <Text style={styles.flagEmojiText}>{profileFlags}</Text>
-                {currentUser && (
-                  <TouchableOpacity
-                    style={styles.pencilIconButton}
-                    onPress={() => setIsEditingFlags(!isEditingFlags)}
-                  >
-                    <Text style={styles.pencilIconText}>✏️</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              {isEditingFlags && currentUser && (
-                <View style={styles.flagPickerDropdown}>
-                  {FLAG_OPTIONS.map((opt) => (
+                <View style={styles.singleFlagWrapper}>
+                  <Text style={styles.flagEmojiText}>
+                    {isMyProfile ? (profileFlag1 || '🏳️') : (currentProfileFlags.slice(0, 2) || '🏳️')}
+                  </Text>
+                  {isMyProfile && currentUser && (
                     <TouchableOpacity
-                      key={opt.value}
-                      style={styles.flagOptionItem}
+                      style={styles.pencilIconButton}
                       onPress={() => {
-                        setProfileFlags(opt.value);
-                        saveProfileData(favoriteSmoothy, favoriteSeries, opt.value);
-                        setIsEditingFlags(false);
+                        setIsEditingFlag1(!isEditingFlag1);
+                        setIsEditingFlag2(false);
                       }}
                     >
-                      <Text style={styles.flagOptionText}>{opt.label}</Text>
+                      <Text style={styles.pencilIconText}>✏️</Text>
                     </TouchableOpacity>
-                  ))}
+                  )}
+                </View>
+
+                <View style={styles.singleFlagWrapper}>
+                  <Text style={styles.flagEmojiText}>
+                    {isMyProfile ? (profileFlag2 || '🏳️') : (currentProfileFlags.slice(2, 4) || '🏳️')}
+                  </Text>
+                  {isMyProfile && currentUser && (
+                    <TouchableOpacity
+                      style={styles.pencilIconButton}
+                      onPress={() => {
+                        setIsEditingFlag2(!isEditingFlag2);
+                        setIsEditingFlag1(false);
+                      }}
+                    >
+                      <Text style={styles.pencilIconText}>✏️</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              {/* Flag 1 Dropdown List */}
+              {isEditingFlag1 && isMyProfile && currentUser && (
+                <View style={styles.flagPickerDropdown}>
+                  <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={true}>
+                    {AVAILABLE_FLAGS.map((opt) => (
+                      <TouchableOpacity
+                        key={`f1-${opt.value}`}
+                        style={styles.flagOptionItem}
+                        onPress={() => {
+                          setProfileFlag1(opt.value);
+                          saveProfileData(favoriteSmoothy, favoriteSeries, opt.value, profileFlag2, favoriteFigure);
+                          setIsEditingFlag1(false);
+                        }}
+                      >
+                        <Text style={styles.flagOptionText}>{opt.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Flag 2 Dropdown List */}
+              {isEditingFlag2 && isMyProfile && currentUser && (
+                <View style={styles.flagPickerDropdown}>
+                  <ScrollView style={{ maxHeight: 180 }} showsVerticalScrollIndicator={true}>
+                    {AVAILABLE_FLAGS.map((opt) => (
+                      <TouchableOpacity
+                        key={`f2-${opt.value}`}
+                        style={styles.flagOptionItem}
+                        onPress={() => {
+                          setProfileFlag2(opt.value);
+                          saveProfileData(favoriteSmoothy, favoriteSeries, profileFlag1, opt.value, favoriteFigure);
+                          setIsEditingFlag2(false);
+                        }}
+                      >
+                        <Text style={styles.flagOptionText}>{opt.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
                 </View>
               )}
 
@@ -1377,18 +2120,22 @@ export default function App() {
                 {/* Favorite Smoothy Box */}
                 <View style={styles.profileBoxCard}>
                   <Text style={styles.profileBoxTitle}>{t.favoriteSmoothy}</Text>
-                  <TextInput
-                    style={styles.smoothyInputText}
-                    value={favoriteSmoothy}
-                    onChangeText={(val) => {
-                      setFavoriteSmoothy(val);
-                      saveProfileData(val, favoriteSeries, profileFlags);
-                    }}
-                    placeholder="Enter flavor"
-                    placeholderTextColor="#888"
-                    editable={!!currentUser}
-                  />
-                  {currentUser && (
+                  {isMyProfile ? (
+                    <TextInput
+                      style={styles.smoothyInputText}
+                      value={favoriteSmoothy}
+                      onChangeText={(val) => {
+                        setFavoriteSmoothy(val);
+                        saveProfileData(val, favoriteSeries, profileFlag1, profileFlag2, favoriteFigure);
+                      }}
+                      placeholder="Enter flavor"
+                      placeholderTextColor="#888"
+                      editable={!!currentUser}
+                    />
+                  ) : (
+                    <Text style={styles.smoothyInputText}>{currentProfileSmoothy}</Text>
+                  )}
+                  {isMyProfile && currentUser && (
                     <View style={styles.boxPencilPosition}>
                       <Text style={styles.pencilIconText}>✏️</Text>
                     </View>
@@ -1401,17 +2148,17 @@ export default function App() {
                   <TouchableOpacity
                     style={styles.seriesLogoSelectArea}
                     onPress={() => {
-                      if (currentUser) setIsEditingSeries(!isEditingSeries);
+                      if (isMyProfile && currentUser) setIsEditingSeries(!isEditingSeries);
                     }}
-                    activeOpacity={currentUser ? 0.7 : 1}
+                    activeOpacity={isMyProfile && currentUser ? 0.7 : 1}
                   >
                     <Image
-                      source={selectedSeriesObj.image}
+                      source={activeSeriesObj.image}
                       style={styles.seriesLogoPreview}
                       resizeMode="contain"
                     />
                   </TouchableOpacity>
-                  {currentUser && (
+                  {isMyProfile && currentUser && (
                     <TouchableOpacity
                       style={styles.boxPencilPosition}
                       onPress={() => setIsEditingSeries(!isEditingSeries)}
@@ -1423,7 +2170,7 @@ export default function App() {
               </View>
 
               {/* Series Picker Dropdown Menu */}
-              {isEditingSeries && currentUser && (
+              {isEditingSeries && isMyProfile && currentUser && (
                 <View style={styles.seriesPickerContainer}>
                   {SERIES_LOGOS.map((logoItem) => (
                     <TouchableOpacity
@@ -1434,7 +2181,7 @@ export default function App() {
                       ]}
                       onPress={() => {
                         setFavoriteSeries(logoItem.id);
-                        saveProfileData(favoriteSmoothy, logoItem.id, profileFlags);
+                        saveProfileData(favoriteSmoothy, logoItem.id, profileFlag1, profileFlag2, favoriteFigure);
                         setIsEditingSeries(false);
                       }}
                     >
@@ -1445,12 +2192,106 @@ export default function App() {
                 </View>
               )}
 
-              {/* Collector Score Center Box */}
-              <View style={styles.collectorScoreCenterBox}>
-                <Text style={styles.collectorScoreBoxTitle}>{t.collectorScore}</Text>
-                <View style={styles.scoreValueHighlightBox}>
-                  <Text style={styles.scoreValueHighlightText}>{calculateTotalScore()}</Text>
+              {/* Row 2: Collector Score & Favorite Figure */}
+              <View style={styles.profileTwoColumnRow}>
+                {/* Collector Score Box */}
+                <View style={styles.profileBoxCard}>
+                  <Text style={styles.profileBoxTitle}>{t.collectorScore}</Text>
+                  <View style={styles.scoreValueHighlightBox}>
+                    <Text style={styles.scoreValueHighlightText}>{currentProfileScore}</Text>
+                  </View>
                 </View>
+
+                {/* Favorite Figure Box */}
+                <View style={styles.profileBoxCard}>
+                  <Text style={styles.profileBoxTitle}>{t.favoriteFigure}</Text>
+                  <TouchableOpacity
+                    style={styles.favoriteFigureSelectArea}
+                    onPress={() => {
+                      if (isMyProfile && currentUser) setIsEditingFavoriteFigure(!isEditingFavoriteFigure);
+                    }}
+                    activeOpacity={isMyProfile && currentUser ? 0.7 : 1}
+                  >
+                    {favoriteFigureObj ? (
+                      <Image
+                        source={favoriteFigureObj.looseImageUrl}
+                        style={styles.favoriteFigurePreview}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <View style={styles.favoriteFigurePlaceholderBox}>
+                        <Text style={styles.favoriteFigurePlaceholderText}>+</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                  {isMyProfile && currentUser && (
+                    <TouchableOpacity
+                      style={styles.boxPencilPosition}
+                      onPress={() => setIsEditingFavoriteFigure(!isEditingFavoriteFigure)}
+                    >
+                      <Text style={styles.pencilIconText}>✏️</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              {/* Favorite Figure Search Modal / Dropdown overlay */}
+              {isEditingFavoriteFigure && isMyProfile && currentUser && (
+                <View style={styles.favoriteFigurePickerContainer}>
+                  <TextInput
+                    style={styles.favoriteFigureSearchInput}
+                    placeholder={t.searchPlaceholder}
+                    placeholderTextColor="#888"
+                    value={favoriteFigureSearchQuery}
+                    onChangeText={setFavoriteFigureSearchQuery}
+                    autoFocus={true}
+                  />
+                  <ScrollView style={{ maxHeight: 220 }} showsVerticalScrollIndicator={true}>
+                    {allFiguresList
+                      .filter((fig) =>
+                        fig.name.toLowerCase().includes(favoriteFigureSearchQuery.toLowerCase().trim())
+                      )
+                      .map((fig) => (
+                        <TouchableOpacity
+                          key={`fav-fig-${fig.id}`}
+                          style={styles.favoriteFigurePickerItem}
+                          onPress={() => {
+                            setFavoriteFigure(fig.id);
+                            saveProfileData(favoriteSmoothy, favoriteSeries, profileFlag1, profileFlag2, fig.id);
+                            setIsEditingFavoriteFigure(false);
+                            setFavoriteFigureSearchQuery('');
+                          }}
+                        >
+                          <Image
+                            source={fig.looseImageUrl}
+                            style={styles.favoriteFigurePickerItemImage}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.favoriteFigurePickerItemText}>{fig.name}</Text>
+                        </TouchableOpacity>
+                      ))}
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Collection Box */}
+              <View style={styles.profileCollectionBox}>
+                <Text style={styles.profileCollectionBoxTitle}>{t.collection}</Text>
+                {ownedFiguresList.length > 0 ? (
+                  <View style={styles.profileCollectionGrid}>
+                    {ownedFiguresList.map((fig) => {
+                      const state = collectionState[fig.id] || 0;
+                      const imgSource = (state === 3 || state === 4) ? fig.looseImageUrl : fig.boxedImageUrl;
+                      return (
+                        <View key={`prof-col-${fig.id}`} style={styles.profileCollectionItemCard}>
+                          <Image source={imgSource} style={styles.profileCollectionItemImage} resizeMode="contain" />
+                        </View>
+                      );
+                    })}
+                  </View>
+                ) : (
+                  <Text style={styles.profileCollectionEmptyText}>No figures collected yet.</Text>
+                )}
               </View>
             </ScrollView>
           </SafeAreaView>
@@ -1491,26 +2332,27 @@ export default function App() {
               showsVerticalScrollIndicator={false}
             >
               {sortedStatsFigures.map((item, index) => {
-                const stats = item.mockStats || { ownPct: 50, nibPct: 50, loosePct: 30 };
+                const stats = globalStats[item.id] || { ownPct: 0, nibPct: 0, loosePct: 0 };
 
                 return (
-                  <View key={item.id} style={styles.statsCardBox}>
-                    <View style={styles.statsNumberBadge}>
-                      <Text style={styles.statsNumberBadgeText}>{index + 1}</Text>
+                  <View key={item.id} style={styles.statsCompactCardBox}>
+                    <View style={styles.statsCompactNumberBadge}>
+                      <Text style={styles.statsCompactNumberText}>{index + 1}</Text>
                     </View>
 
-                    <View style={styles.statsCardInnerRow}>
-                      <Image
-                        source={item.looseImageUrl}
-                        style={styles.statsLooseImage}
-                        resizeMode="contain"
-                      />
+                    <Image
+                      source={item.looseImageUrl}
+                      style={styles.statsCompactLooseImage}
+                      resizeMode="contain"
+                    />
 
-                      <View style={styles.statsDetailsColumn}>
-                        <Text style={styles.statsPctOwnText}>{stats.ownPct}% Own it</Text>
-                        <Text style={styles.statsPctSubText}>{stats.nibPct}% NIB</Text>
-                        <Text style={styles.statsPctSubText}>{stats.loosePct}% Loose</Text>
+                    <View style={styles.statsCompactDetailsColumn}>
+                      <Text style={styles.statsCompactOwnText}>{stats.ownPct}% Own it</Text>
+                      <View style={styles.statsProgressBarBackground}>
+                        <View style={[styles.statsProgressBarFill, { width: `${stats.ownPct}%` }]} />
                       </View>
+                      <Text style={styles.statsCompactSubText}>{stats.nibPct}% NIB</Text>
+                      <Text style={styles.statsCompactSubText}>{stats.loosePct}% Loose</Text>
                     </View>
                   </View>
                 );
@@ -1626,7 +2468,7 @@ export default function App() {
           </TouchableWithoutFeedback>
         </Modal>
 
-        {/* Leaderboard Modal */}
+        {/* Leaderboard Modal with Filter & Highlighting */}
         <Modal
           visible={isLeaderboardOpen}
           transparent={false}
@@ -1635,9 +2477,19 @@ export default function App() {
         >
           <SafeAreaView style={styles.newsModalContainer} edges={['top', 'bottom', 'left', 'right']}>
             <View style={styles.newsHeader}>
-              <View style={styles.newsHeaderBadge}>
-                <Text style={styles.newsHeaderTitle}>{t.leaderboardTitle}</Text>
+              <View style={styles.newsHeaderBadgeRow}>
+                <View style={styles.newsHeaderBadge}>
+                  <Text style={styles.newsHeaderTitle}>{t.leaderboardTitle}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.leaderboardFilterTriggerBtn}
+                  onPress={() => setIsLeaderboardFilterOpen(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.leaderboardFilterTriggerIcon}>🎴</Text>
+                </TouchableOpacity>
               </View>
+
               <TouchableOpacity
                 style={styles.newsCloseButton}
                 onPress={() => setIsLeaderboardOpen(false)}
@@ -1661,18 +2513,105 @@ export default function App() {
               keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={true}
               contentContainerStyle={styles.leaderboardListPadding}
-              renderItem={({ item }) => (
-                <View style={styles.leaderboardRow}>
-                  <Text style={[styles.leaderboardCell, styles.rankCol]}>#{item.position}</Text>
-                  <Text style={[styles.leaderboardCell, styles.userCol]} numberOfLines={1}>
-                    {item.username}
-                  </Text>
-                  <Text style={[styles.leaderboardCell, styles.flagCol]}>{item.flag}</Text>
-                  <Text style={[styles.leaderboardCell, styles.scoreCol]}>{item.score}</Text>
-                </View>
-              )}
+              renderItem={({ item }) => {
+                const isClickable = item.username !== '-';
+                const isCurrentUserRow = currentUser && item.user_id === currentUser.userId;
+
+                return (
+                  <TouchableOpacity
+                    style={[
+                      styles.leaderboardRow,
+                      isCurrentUserRow && styles.leaderboardRowHighlighted,
+                    ]}
+                    activeOpacity={isClickable ? 0.7 : 1}
+                    disabled={!isClickable}
+                    onPress={() => {
+                      if (!isClickable) return;
+
+                      setIsLeaderboardOpen(false);
+
+                      setSelectedProfileUser({
+                        username: item.username,
+                        userId: item.user_id || 'PUBLIC-USER',
+                        flags: item.flag || '',
+                        score: item.score,
+                        favoriteSmoothy: item.user_id === currentUser?.userId ? favoriteSmoothy : 'Grasshopper',
+                        favoriteSeries: item.user_id === currentUser?.userId ? favoriteSeries : 'os-logo',
+                        favoriteFigure: item.user_id === currentUser?.userId ? favoriteFigure : null,
+                      });
+
+                      setIsProfileModalOpen(true);
+                    }}
+                  >
+                    <Text style={[styles.leaderboardCell, styles.rankCol]}>#{item.position}</Text>
+                    <Text style={[styles.leaderboardCell, styles.userCol]} numberOfLines={1}>
+                      {item.username}
+                    </Text>
+                    <Text style={[styles.leaderboardCell, styles.flagCol]}>{item.flag}</Text>
+                    <Text style={[styles.leaderboardCell, styles.scoreCol]}>{item.score}</Text>
+                  </TouchableOpacity>
+                );
+              }}
             />
           </SafeAreaView>
+        </Modal>
+
+        {/* Leaderboard Category Filter Modal */}
+        <Modal
+          visible={isLeaderboardFilterOpen}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsLeaderboardFilterOpen(false)}
+        >
+          <TouchableWithoutFeedback onPress={() => setIsLeaderboardFilterOpen(false)}>
+            <View style={styles.filterModalOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={styles.leaderboardFilterCard}>
+                  <TouchableOpacity
+                    style={styles.leaderboardFilterOptionItem}
+                    onPress={async () => {
+                      setLeaderboardFilter('MAIN');
+                      setIsLeaderboardFilterOpen(false);
+                      await buildLeaderboardList('MAIN');
+                    }}
+                  >
+                    <Text style={[styles.leaderboardFilterOptionText, leaderboardFilter === 'MAIN' && styles.leaderboardFilterOptionActiveText]}>
+                      Main Leaderboard
+                    </Text>
+                    {leaderboardFilter === 'MAIN' && <View style={styles.leaderboardFilterIndicator} />}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.leaderboardFilterOptionItem}
+                    onPress={async () => {
+                      setLeaderboardFilter('NIB');
+                      setIsLeaderboardFilterOpen(false);
+                      await buildLeaderboardList('NIB');
+                    }}
+                  >
+                    <Text style={[styles.leaderboardFilterOptionText, leaderboardFilter === 'NIB' && styles.leaderboardFilterOptionActiveText]}>
+                      New in Box Leaderboard
+                    </Text>
+                    {leaderboardFilter === 'NIB' && <View style={styles.leaderboardFilterIndicator} />}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.leaderboardFilterOptionItem}
+                    onPress={async () => {
+                      setLeaderboardFilter('LOOSE');
+                      setIsLeaderboardFilterOpen(false);
+                      await buildLeaderboardList('LOOSE');
+                    }}
+                  >
+                    <Text style={[styles.leaderboardFilterOptionText, leaderboardFilter === 'LOOSE' && styles.leaderboardFilterOptionActiveText]}>
+                      Loose Leaderboard
+                    </Text>
+                    {leaderboardFilter === 'LOOSE' && <View style={styles.leaderboardFilterIndicator} />}
+                  </TouchableOpacity>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
         </Modal>
 
         {/* News Modal */}
@@ -1745,6 +2684,7 @@ export default function App() {
                       if (!currentUser) {
                         setIsAuthModalOpen(true);
                       } else {
+                        setSelectedProfileUser(null);
                         setIsProfileModalOpen(true);
                       }
                     }}
@@ -1936,6 +2876,34 @@ export default function App() {
                     >
                       <Text style={styles.filterChipText}>Español</Text>
                     </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.filterChipVertical, language === 'pt' && styles.filterChipActive]}
+                      onPress={() => handleSelectLanguage('pt')}
+                    >
+                      <Text style={styles.filterChipText}>Português</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.filterChipVertical, language === 'th' && styles.filterChipActive]}
+                      onPress={() => handleSelectLanguage('th')}
+                    >
+                      <Text style={styles.filterChipText}>ไทย</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.filterChipVertical, language === 'hi' && styles.filterChipActive]}
+                      onPress={() => handleSelectLanguage('hi')}
+                    >
+                      <Text style={styles.filterChipText}>हिन्दी</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.filterChipVertical, language === 'zh' && styles.filterChipActive]}
+                      onPress={() => handleSelectLanguage('zh')}
+                    >
+                      <Text style={styles.filterChipText}>中文</Text>
+                    </TouchableOpacity>
                   </View>
 
                   <View style={styles.menuDivider} />
@@ -1997,9 +2965,7 @@ export default function App() {
                     <View style={styles.menuIconBox}>
                       <Text style={styles.menuIconText}>%</Text>
                     </View>
-                    <Text style={[styles.menuItemLabel, { fontFamily: 'DekoDisplay-Serial', fontSize: 18 }]}>
-                      {t.stats}
-                    </Text>
+                    <Text style={styles.menuItemLabel}>{t.stats}</Text>
                   </TouchableOpacity>
 
                   <View style={styles.menuDivider} />
@@ -2119,7 +3085,7 @@ export default function App() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: '#0A181C',
   },
   loadingContainer: {
     flex: 1,
@@ -2127,9 +3093,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  seriesContainerBlock: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  osBlock: {
+    backgroundColor: '#F7F7E6',
+  },
+  alienForceBlock: {
+    backgroundColor: '#0A181C',
+    minHeight: SCREEN_HEIGHT,
+  },
   fullScreenBackground: {
     width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 2,
+    height: '100%',
     position: 'absolute',
     top: 0,
     left: 0,
@@ -2198,13 +3175,29 @@ const styles = StyleSheet.create({
   contentBodyWrapper: {
     flex: 1,
     zIndex: 10,
+    backgroundColor: 'transparent',
   },
   listFlex: {
     flex: 1,
   },
   listContentPadding: {
-    paddingTop: 16,
-    paddingBottom: 100,
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  seriesBorderSeparatorContainer: {
+    height: 60,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+    zIndex: 5,
+    marginVertical: 0,
+  },
+  seriesBorderLogoImage: {
+    width: 120,
+    height: 38,
+    zIndex: 10,
   },
   seriesSection: {
     marginBottom: 40,
@@ -2484,8 +3477,19 @@ const styles = StyleSheet.create({
   flagRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 16,
     marginBottom: 16,
+  },
+  singleFlagWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
   flagEmojiText: {
     fontSize: 24,
@@ -2504,6 +3508,7 @@ const styles = StyleSheet.create({
     borderColor: '#334155',
     marginBottom: 16,
     width: '100%',
+    maxWidth: 260,
   },
   flagOptionItem: {
     paddingVertical: 8,
@@ -2517,7 +3522,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     width: '100%',
-    marginVertical: 16,
+    marginVertical: 8,
   },
   profileBoxCard: {
     flex: 1,
@@ -2527,13 +3532,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#334155',
     position: 'relative',
+    height: 100,
+    justifyContent: 'space-between',
   },
   profileBoxTitle: {
     color: '#94A3B8',
     fontSize: 11,
     fontWeight: 'bold',
     letterSpacing: 0.5,
-    marginBottom: 8,
   },
   smoothyInputText: {
     color: '#39FF14',
@@ -2582,35 +3588,127 @@ const styles = StyleSheet.create({
     color: '#F8FAFC',
     fontSize: 14,
   },
-  collectorScoreCenterBox: {
-    width: '100%',
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#334155',
-    marginTop: 8,
-  },
-  collectorScoreBoxTitle: {
-    color: '#94A3B8',
-    fontSize: 12,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
   scoreValueHighlightBox: {
     backgroundColor: '#0F172A',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#39FF14',
+    alignSelf: 'center',
+    marginTop: 4,
   },
   scoreValueHighlightText: {
     color: '#39FF14',
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
+  },
+  favoriteFigureSelectArea: {
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteFigurePreview: {
+    width: '100%',
+    height: '100%',
+  },
+  favoriteFigurePlaceholderBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#0F172A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  favoriteFigurePlaceholderText: {
+    color: '#38BDF8',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  favoriteFigurePickerContainer: {
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+    width: '100%',
+    marginBottom: 16,
+  },
+  favoriteFigureSearchInput: {
+    backgroundColor: '#0F172A',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    color: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  favoriteFigurePickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
+    gap: 12,
+  },
+  favoriteFigurePickerItemImage: {
+    width: 40,
+    height: 40,
+  },
+  favoriteFigurePickerItemText: {
+    color: '#F8FAFC',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  profileCollectionBox: {
+    width: '100%',
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  profileCollectionBoxTitle: {
+    color: '#F8FAFC',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    letterSpacing: 1,
+  },
+  profileCollectionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    justifyContent: 'center',
+    width: '100%',
+  },
+  profileCollectionItemCard: {
+    width: 68,
+    height: 68,
+    backgroundColor: '#0F172A',
+    borderRadius: 8,
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  profileCollectionItemImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profileCollectionEmptyText: {
+    color: '#64748B',
+    fontSize: 13,
+    fontStyle: 'italic',
+    paddingVertical: 12,
   },
   statsModalContainer: {
     flex: 1,
@@ -2649,54 +3747,70 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statsGridContent: {
-    padding: 16,
-    gap: 12,
-  },
-  statsCardBox: {
-    backgroundColor: '#1E293B',
-    borderRadius: 12,
     padding: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  statsCompactCardBox: {
+    width: (SCREEN_WIDTH - 32) / 3 - 4,
+    backgroundColor: '#1E293B',
+    borderRadius: 8,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#334155',
+    alignItems: 'center',
     position: 'relative',
+    marginBottom: 8,
   },
-  statsNumberBadge: {
+  statsCompactNumberBadge: {
     position: 'absolute',
-    top: 8,
-    left: 8,
+    top: 4,
+    left: 4,
     backgroundColor: '#334155',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
+    borderRadius: 8,
+    width: 18,
+    height: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 2,
   },
-  statsNumberBadgeText: {
+  statsCompactNumberText: {
     color: '#F8FAFC',
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 'bold',
   },
-  statsCardInnerRow: {
-    flexDirection: 'row',
+  statsCompactLooseImage: {
+    width: 50,
+    height: 50,
+    marginVertical: 4,
+  },
+  statsCompactDetailsColumn: {
+    width: '100%',
     alignItems: 'center',
-    gap: 16,
-    paddingLeft: 20,
   },
-  statsLooseImage: {
-    width: 60,
-    height: 60,
-  },
-  statsDetailsColumn: {
-    justifyContent: 'center',
-  },
-  statsPctOwnText: {
+  statsCompactOwnText: {
     color: '#39FF14',
-    fontSize: 16,
+    fontSize: 11,
     fontWeight: 'bold',
+    marginBottom: 4,
   },
-  statsPctSubText: {
+  statsProgressBarBackground: {
+    width: '100%',
+    height: 4,
+    backgroundColor: '#334155',
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  statsProgressBarFill: {
+    height: '100%',
+    backgroundColor: '#39FF14',
+  },
+  statsCompactSubText: {
     color: '#94A3B8',
-    fontSize: 12,
+    fontSize: 9,
   },
   newsModalContainer: {
     flex: 1,
@@ -2711,6 +3825,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#334155',
   },
+  newsHeaderBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   newsHeaderBadge: {
     backgroundColor: '#1E293B',
     paddingHorizontal: 12,
@@ -2722,6 +3841,51 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     letterSpacing: 1,
+  },
+  leaderboardFilterTriggerBtn: {
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#334155',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  leaderboardFilterTriggerIcon: {
+    fontSize: 14,
+  },
+  leaderboardFilterCard: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#1E293B',
+    borderRadius: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+    alignItems: 'center',
+  },
+  leaderboardFilterOptionItem: {
+    width: '100%',
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  leaderboardFilterOptionText: {
+    color: '#94A3B8',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  leaderboardFilterOptionActiveText: {
+    color: '#F8FAFC',
+  },
+  leaderboardFilterIndicator: {
+    width: 140,
+    height: 3,
+    backgroundColor: '#38BDF8',
+    marginTop: 8,
+    borderRadius: 2,
   },
   newsCloseButton: {
     padding: 6,
@@ -2793,6 +3957,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(51, 65, 85, 0.4)',
     alignItems: 'center',
+  },
+  leaderboardRowHighlighted: {
+    backgroundColor: 'rgba(22, 163, 74, 0.25)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#16A34A',
   },
   leaderboardCell: {
     color: '#F8FAFC',
